@@ -1,0 +1,23 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "plus jakarta sans",
+        "createdAt": "2026-11-08T06:16:02.934Z",
+        "reason": "user-specified: CLAUDE.md section 3 (written by the user) mandates Plus Jakarta Sans for body and titles"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-08T06:16:03.134Z",
+        "reason": "false positive: static scan of div.app; its children .topbar and .view carry their own inset (--pad-x), verified in rendered screenshots"
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Matías Arancibia · AI Product Designer",
+  "short_name": "Matías A.",
+  "description": "Portfolio de Matías Arancibia: UI/UX, design systems, automatización con IA y design-to-code.",
+  "lang": "es",
+  "start_url": "./#/",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e2e2e1",
+  "theme_color": "#e2e2e1",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

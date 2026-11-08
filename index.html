@@ -1,13 +1,114 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>arancibia-web</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Matías Arancibia · AI Product Designer</title>
+  <meta name="description" content="Matías Arancibia, AI Product Designer en BYMA. UI/UX, design systems, automatización con IA y design-to-code, desde CABA, Argentina.">
+  <meta name="author" content="Matías Ezequiel Arancibia">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_AR">
+  <meta property="og:title" content="Matías Arancibia · AI Product Designer">
+  <meta property="og:description" content="UI/UX, design systems, automatización con IA y design-to-code.">
+  <meta property="og:image" content="assets/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <meta name="theme-color" content="#e2e2e1">
+  <meta name="theme-color" content="#e2e2e1" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Matías A.">
+
+  <script>
+    try {
+      var t = localStorage.getItem('theme');
+      if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@900&family=Plus+Jakarta+Sans:wght@400..800&display=swap">
+  <link rel="preload" as="image" href="assets/matias-bn.webp" type="image/webp">
+
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/views.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Saltar al contenido</a>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a class="brand" href="#/" aria-label="Matías Arancibia, inicio">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+            <g fill="currentColor">
+              <circle cx="16" cy="4.5" r="2.6"/><circle cx="24.1" cy="7.9" r="2.6"/><circle cx="27.5" cy="16" r="2.6"/><circle cx="24.1" cy="24.1" r="2.6"/>
+              <circle cx="16" cy="27.5" r="2.6"/><circle cx="7.9" cy="24.1" r="2.6"/><circle cx="4.5" cy="16" r="2.6"/><circle cx="7.9" cy="7.9" r="2.6"/>
+              <circle cx="16" cy="16" r="4.2"/>
+            </g>
+          </svg>
+          <span class="brand-name">Matías Arancibia</span>
+        </a>
+        <div class="topbar-tools">
+          <div class="search" role="search">
+            <label class="sr-only" for="q">Buscar en el sitio</label>
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input id="q" type="text" placeholder="Buscar" autocomplete="off" spellcheck="false"
+              role="combobox" aria-expanded="false" aria-controls="q-results" aria-autocomplete="list">
+            <kbd aria-hidden="true">/</kbd>
+            <div id="q-results" class="palette" role="listbox" aria-label="Resultados de búsqueda" hidden></div>
+          </div>
+          <button type="button" class="icon-btn" id="theme-btn" aria-label="Cambiar tema"></button>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="cv-slot" id="cv-slot"></span>
+        <div class="menu-wrap">
+          <button type="button" class="icon-btn" data-menu-toggle aria-expanded="false" aria-controls="links-menu" aria-label="Mis enlaces" title="Enlaces">
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+          </button>
+          <ul class="menu menu-right" id="links-menu" role="menu" aria-label="Mis enlaces" hidden></ul>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="main" tabindex="-1"></main>
+
+    <nav class="dock" id="dock" aria-label="Secciones">
+      <a class="dock-btn d-1" href="#/experiencia" aria-label="Experiencia" title="Experiencia (2)">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+      </a>
+      <a class="dock-btn d-2" href="#/proyectos" aria-label="Proyectos" title="Proyectos (3)">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+      </a>
+      <a class="dock-btn d-3" href="#/" aria-label="Inicio" title="Inicio (1)">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+      </a>
+      <a class="dock-btn d-4" href="#/personal" aria-label="Personal" title="Personal (5)">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>
+      </a>
+      <a class="dock-btn d-5" href="#/sobre-mi" aria-label="Sobre mí" title="Sobre mí (4)">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </a>
+      <span class="dock-label" aria-hidden="true">Inicio</span>
+    </nav>
+  </div>
+
+  <p id="announcer" class="sr-only" aria-live="polite"></p>
+  <dialog id="contact" aria-labelledby="contact-title"></dialog>
+
+  <noscript><p class="noscript">Este sitio necesita JavaScript. Escribime a matias.arancibia05@gmail.com.</p></noscript>
+</body>
 </html>
