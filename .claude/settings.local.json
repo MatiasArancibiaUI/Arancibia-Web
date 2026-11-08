@@ -1,5 +1,11 @@
 {
-  "description": "Impeccable design detector: immediate-tier checks after Edit/Write on UI files, full-rule deep pass on Stop.",
+  "permissions": {
+    "allow": [
+      "Bash(cd \"c:/Users/adm/Desktop/GitsClones/Arancibia-Web\" && cat data/personal.js data/profile.js; node -v; ls \"/c/Program Files \\(x86\\)/Microsoft/Edge/Application/msedge.exe\" \"/c/Program Files/Google/Chrome/Application/chrome.exe\" 2>&1; ls node_modules 2>&1 | head; ls .agents/skills/design-taste-frontend/scripts)",
+      "Read(//c/Program Files \\\\\\(x86\\\\\\)/Microsoft/Edge/Application/**)",
+      "Bash(node scripts/dev.mjs)"
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -38,5 +44,6 @@
         ]
       }
     ]
-  }
+  },
+  "description": "Impeccable design detector: immediate-tier checks after Edit/Write on UI files, full-rule deep pass on Stop."
 }

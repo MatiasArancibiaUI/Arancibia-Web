@@ -410,6 +410,22 @@
 .dock-btn[aria-current="page"] { background: var(--black); color: var(--on-black); }
 .dock-btn[aria-current="page"] .ic { color: var(--accent); }
 
+/* Marco apilado (menos de 960 × 600 de marco): el menú deja de flotar y pasa a ser la última fila
+   del marco, siempre visible abajo y sin tapar contenido. Media query porque las de contenedor no
+   pueden cambiar las filas de .app; los cortes equivalen a 960 + 32 y 600 + 32 de ventana. */
+@media (max-width: 991.98px), (max-height: 631.98px) {
+  .app { grid-template-rows: auto minmax(0, 1fr) auto; }
+  .dock {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    translate: none;
+    justify-self: center;
+    max-width: calc(100% - 16px);
+    margin: 6px 0 max(10px, env(safe-area-inset-bottom, 0px));
+  }
+}
+
 /* --- Contacto ----------------------------------------------------------- */
 dialog {
   width: min(440px, 100vw - 32px);

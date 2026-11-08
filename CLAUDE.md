@@ -62,10 +62,11 @@ Cada vista exporta `title`, `render()` (devuelve HTML) y opcionalmente `mount(el
 ### Reglas de pantalla
 
 - El marco `.app` mide `min(100vw - 32px, 1440px)` × `min(100dvh - 32px, 920px)` y es contenedor de tamaño (`container: app / size`): las medidas usan `cqh`/`cqw` con `clamp()`.
-- Sin scroll de página desde 1024×700. Las vistas largas usan scroll interno (`.scroll-y`). Debajo de 760 px y 680 px de alto del marco se ocultan detalles secundarios antes de que algo se corte.
+- Sin scroll de página desde 1024×700. Las vistas largas usan scroll interno dentro del marco. Debajo de 760 px y 680 px de alto del marco se ocultan detalles secundarios antes de que algo se corte.
 - Con el marco de menos de 960 px de ancho o 600 px de alto, todo pasa a una columna con scroll interno en `.main` (celular y tablet vertical).
-- El menú reserva su espacio con `--reserve` en `.view` (alto del menú + margen); nada queda debajo.
-- Ninguna vista usa scroll interno en escritorio: todo el contenido se ve completo. Si no entra, primero se compacta (dos columnas, encabezado con contenido a la derecha del título) y después se ocultan detalles secundarios por altura. Solo en el modo apilado (celular) scrollea `.main`.
+- El menú reserva su espacio con `--reserve` en `.view` (alto del menú + margen); nada queda debajo. En el modo apilado el menú deja de flotar y es la última fila del marco (media query en `css/components.css`), así siempre se ve en celular.
+- Tarjeta de pestañas de la home: Experiencia muestra los tres roles (BYMA primero, con su logo monocromo de `companyLogo()` en `js/logos.js`). Herramientas y Educación ocultan los mosaicos de abajo para leerse completas, sin scroll.
+- La home entra completa, sin scroll: si no entra, primero se compacta y después se ocultan detalles secundarios por altura. Las demás vistas (Experiencia, Proyectos, Proceso, Sobre mí) scrollean dentro del marco (`.view-host.scrolls`, lo asigna `js/main.js`): el contenido toma su alto natural, con aire entre bloques, y no se esconde nada por altura. En el modo apilado (celular) scrollea `.main`.
 - Meses y años se calculan en `js/util.js` (`monthsBetween` cuenta el mes de inicio y el de fin). Nunca escribir duraciones a mano.
 - Las consultas de contenedor no aplican a `.app` mismo: para cambiar variables por tamaño se usa `.app > *`.
 
@@ -145,8 +146,8 @@ Nombres actuales en el código: `.card`, `.card.black`, `.chip`/`.chips`, `.labe
 ## 4. Layout y responsive
 
 - Escritorio: tablero apaisado de dos columnas, 43 / 57 (izquierda: perfil con foto, nombre, rol, ubicación e idiomas en una línea, ficha compacta de email y teléfono, pestañas y accesos; derecha: subtítulo numerado, titular, franja de stack, trabajo actual, aprendiendo y proyecto destacado).
-- Experiencia: la línea de tiempo (barras tipo Gantt con nombre y duración) va en el encabezado, a la derecha del título. BYMA a la izquierda con sus puntos en dos columnas equilibradas; UADE y Dogma a la derecha, con todos sus puntos visibles.
-- Proceso: el proceso es una columna alta (tarjeta negra) con los cinco pasos en vertical; al lado, IA y mercado de capitales arriba y habilidades abajo. "Aprendiendo ahora" va en el encabezado.
+- Experiencia: debajo del título, la línea de tiempo en una tarjeta a todo el ancho (un píxel por mes desde 2023, etiquetas de cada rol arriba y años abajo; los meses se encienden en orden al entrar en pantalla). Debajo, BYMA a la izquierda con sus puntos en dos columnas; UADE y Dogma a la derecha, con todos sus puntos visibles.
+- Proceso: el proceso es una columna alta (tarjeta negra) con los cinco pasos en vertical y sus herramientas como etiquetas; al lado, IA y mercado de capitales arriba, "Aprendiendo ahora" en el medio y habilidades abajo.
 - Sobre mí: cuatro columnas. Datos de contacto y bio ocupan columnas completas; experiencia, idiomas, formación y certificaciones son tarjetas chicas.
 - Menos de 980px: una columna. Menos de 680px: todo apilado, la foto pasa debajo del nombre y desaparecen los botones de texto de la barra superior.
 - Margen lateral mínimo de 16px en cualquier ancho, respetando `env(safe-area-inset-*)`.
@@ -185,7 +186,7 @@ Cuando te pase un proyecto nuevo, seguí estos pasos:
 1. Pedime lo que falte: nombre, rol, año, qué problema resolvía, qué hice yo, tecnologías, resultado (solo si es real y publicable), links (demo, repo, Behance) e imágenes.
 2. Agregar un objeto a `data/projects.js`: `{ id, titulo, tipo, descripcion, tecnologias, anio, empresa, rol, destino: "behance" | "github", url, portada }`. No se toca HTML ni CSS. Sin `url`, la tarjeta se ve apagada con "Link próximamente"; sin `portada`, se genera un patrón de puntos desde el `id`.
 3. El proyecto destacado es la tarjeta negra de la home (`.feat` en `js/views/home.js`). Solo puede haber uno.
-4. Los filtros y la búsqueda toman el proyecto automáticamente. Con más de seis proyectos, la grilla pasa a scroll interno.
+4. Los filtros y la búsqueda toman el proyecto automáticamente. La vista scrollea si hay más filas de las que entran.
 5. Revisar enlaces, `alt` de imágenes y vista en celular.
 
 ## 9. Accesibilidad

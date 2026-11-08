@@ -54,7 +54,7 @@ export function render() {
       </div>
     </header>
     <p class="filter-status" hidden><span class="filter-text"></span> <button type="button" class="link-btn" data-clear>Limpiar búsqueda</button></p>
-    <div class="proj-wrap scroll-y">
+    <div class="proj-wrap">
       <ul class="proj-grid">${projects.map(card).join('')}</ul>
       <p class="empty" hidden>Ningún proyecto coincide con la búsqueda.</p>
     </div>
@@ -75,7 +75,6 @@ export function mount(el) {
       if (ok) visibles++;
     });
     el.querySelector('.empty').hidden = visibles > 0;
-    el.querySelector('.proj-wrap').classList.toggle('many', visibles > 6);
     status.hidden = !q;
     status.querySelector('.filter-text').textContent = q ? `Mostrando ${visibles} de ${projects.length} para “${getQuery().trim()}”.` : '';
   };

@@ -1,5 +1,4 @@
 import { profile } from '../../data/profile.js';
-import { icon } from '../icons.js';
 import { toolChip } from '../logos.js';
 import { esc, fmtRange, fmtYM, monthsBetween, currentYM, parseYM } from '../util.js';
 
@@ -18,41 +17,40 @@ function splitCols(items) {
 
 const meta = (e) => [fmtRange(e.inicio, e.fin), e.lugar, e.modalidad].filter(Boolean).join(' · ');
 
-// Línea de tiempo tipo Gantt: una barra por rol, con nombre y duración adentro.
+// Línea de tiempo: un píxel por mes desde 2023; los meses con un rol se encienden en orden al entrar en pantalla.
 function timeline() {
   const start = '2023-01';
   const total = monthsBetween(start, currentYM());
   const idx = (ym) => monthsBetween(start, ym) - 1;
-  const roles = [...profile.experiencia].reverse().map((e) => {
-    const a = idx(e.inicio);
-    const b = idx(e.fin || currentYM());
-    return { ...e, a, len: b - a + 1, meses: monthsBetween(e.inicio, e.fin) };
-  });
+  const roles = [...profile.experiencia].reverse().map((e) => ({ ...e, a: idx(e.inicio), b: idx(e.fin || currentYM()) }));
+  const roleAt = (i) => roles.find((r) => i >= r.a && i <= r.b);
   const years = [];
   for (let y = parseYM(start).y; y <= parseYM(currentYM()).y; y++) years.push({ y, i: idx(`${y}-01`) });
-  const pct = (i) => (i / total) * 100;
+  const pct = (i) => ((i + 0.5) / total) * 100;
 
   return `
-    <section class="timeline" aria-labelledby="h-tl">
-      <div class="tl-head">
+    <section class="card timeline" aria-labelledby="h-tl" style="--n:${total}">
+      <div class="card-head">
         <h2 class="label" id="h-tl">Línea de tiempo</h2>
         <p class="tl-range">${fmtYM(start)} – hoy</p>
       </div>
-      <div class="tl">
-        <div class="tl-bars">
-          ${roles
-            .map(
-              (r) => `
-            <div class="tl-bar${r.fin ? '' : ' is-now'}" style="--x:${pct(r.a)}%;--w:${pct(r.len)}%">
-              <b>${esc(r.empresa)}</b><span>${r.meses} meses</span>
-            </div>`,
-            )
-            .join('')}
+      <div class="tl" aria-hidden="true">
+        <div class="tl-labels">
+          ${roles.map((r) => `<p class="tl-role${r.fin ? '' : ' is-now'}" style="--x:${pct(r.a)}%;--i:${r.a}"><b>${esc(r.empresa)}</b><span>${fmtRange(r.inicio, r.fin)}</span></p>`).join('')}
         </div>
-        <div class="tl-axis" aria-hidden="true">
+        <div class="tl-track">
+          ${Array.from({ length: total }, (_, i) => {
+            const r = roleAt(i);
+            return `<span class="${r ? 'on' : ''}${i === total - 1 && r && !r.fin ? ' now' : ''}" style="--i:${i}"></span>`;
+          }).join('')}
+        </div>
+        <div class="tl-years">
           ${years.map((y) => `<span style="--x:${pct(y.i)}%">${y.y}</span>`).join('')}
         </div>
       </div>
+      <ul class="sr-only">
+        ${roles.map((r) => `<li>${esc(r.empresa)}, ${esc(r.cargo)}: ${fmtRange(r.inicio, r.fin)}, ${monthsBetween(r.inicio, r.fin)} meses</li>`).join('')}
+      </ul>
     </section>`;
 }
 
@@ -61,10 +59,10 @@ export function render() {
   const meses = monthsBetween(actual.inicio, actual.fin);
   return `
   <section class="view exp">
-    <header class="view-head exp-head">
+    <header class="view-head">
       <div><p class="eyebrow"><span class="idx">02</span> Experiencia</p><h1 class="headline view-title" tabindex="-1">Dónde diseñé y qué <span class="hl">hice</span>.</h1></div>
-      ${timeline()}
     </header>
+    ${timeline()}
     <div class="exp-grid">
       <article class="card black exp-main" aria-labelledby="h-byma">
         <div class="card-head">
@@ -82,10 +80,7 @@ export function render() {
         <div class="bullet-cols">
           ${splitCols(actual.puntos).map((col) => `<ul class="bullets">${col.map((p) => `<li>${esc(p)}</li>`).join('')}</ul>`).join('')}
         </div>
-        <div class="exp-foot">
-          <ul class="chips sm on-black" aria-label="Herramientas">${actual.herramientas.map(toolChip).join('')}</ul>
-          <p class="exp-market">${icon('landmark')} ${profile.mercado.instrumentos.map(esc).join(' · ')}</p>
-        </div>
+        <ul class="chips sm on-black" aria-label="Herramientas">${actual.herramientas.map(toolChip).join('')}</ul>
       </article>
 
       <div class="exp-side">
@@ -112,4 +107,23 @@ export function render() {
 
     </div>
   </section>`;
+}
+
+// La línea se enciende cuando entra en pantalla (al cargar o al scrollear hasta ella).
+export function mount(el) {
+  const tl = el.querySelector('.timeline');
+  if (!tl || !('IntersectionObserver' in window)) {
+    tl?.classList.add('is-in');
+    return null;
+  }
+  const io = new IntersectionObserver(
+    (entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      tl.classList.add('is-in');
+      io.disconnect();
+    },
+    { threshold: 0.4 },
+  );
+  io.observe(tl);
+  return () => io.disconnect();
 }

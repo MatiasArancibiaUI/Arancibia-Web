@@ -1,7 +1,7 @@
 import { personal } from '../../data/personal.js';
 import { profile } from '../../data/profile.js';
 import { icon } from '../icons.js';
-import { logo, hasLogo } from '../logos.js';
+import { logo, hasLogo, toolChip } from '../logos.js';
 import { esc, fmtRange, fmtYM, isDev } from '../util.js';
 
 export const title = 'Proceso';
@@ -15,7 +15,7 @@ const pending = (cls, t) =>
 const extra = (cls, t, texto) =>
   texto ? `<article class="card extra ${cls}"><h2 class="label">${esc(t)}</h2><p class="extra-text">${esc(texto)}</p></article>` : pending(cls, t);
 
-const meter =({ valor, total }, label) =>
+const meter = ({ valor, total }, label) =>
   `<span class="meter" role="img" aria-label="${esc(label)}">${Array.from({ length: total }, (_, i) => `<span class="${i < valor ? 'on' : ''}"></span>`).join('')}</span>`;
 
 export function render() {
@@ -28,20 +28,8 @@ export function render() {
 
   return `
   <section class="view proc${isDev() ? ' is-dev' : ''}">
-    <header class="view-head proc-head">
+    <header class="view-head">
       <div><p class="eyebrow"><span class="idx">04</span> Proceso · Habilidades · Stack</p><h1 class="headline view-title" tabindex="-1">De diseño a <span class="hl">código</span>.</h1></div>
-      <section class="learn-now" aria-labelledby="h-learn2">
-        <h2 class="label" id="h-learn2">${esc(a.titulo)}</h2>
-        <ul class="learn-rows">
-          ${a.items
-            .map(
-              (i) =>
-                `<li><p class="lr-t">${esc(i.titulo)}</p><p class="lr-s">${esc([i.lugar, i.inicio ? fmtRange(i.inicio, i.fin) : 'En curso'].filter(Boolean).join(' · '))}</p></li>`,
-            )
-            .join('')}
-          <li><p class="lr-t">${icon('award')} ${esc(cert.titulo)}</p><p class="lr-s">${esc(cert.institucion)} · terminado en ${fmtYM(cert.fecha)}</p></li>
-        </ul>
-      </section>
     </header>
 
     <div class="proc-grid">
@@ -61,9 +49,7 @@ export function render() {
               <span class="dots step-n" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
               <h3 class="step-title">${icon(s.icono)} ${esc(s.titulo)}</h3>
               <p class="step-text">${esc(s.texto)}</p>
-              <ul class="step-tools" aria-label="Herramientas">
-                ${s.herramientas.map((t) => (hasLogo(t) ? `<li title="${esc(t)}">${logo(t)}<span class="sr-only">${esc(t)}</span></li>` : `<li>${esc(t)}</li>`)).join('')}
-              </ul>
+              <ul class="chips sm on-black step-tools" aria-label="Herramientas">${s.herramientas.map(toolChip).join('')}</ul>
             </li>`,
             )
             .join('')}
@@ -109,10 +95,23 @@ export function render() {
           ${m.instrumentos.map((x) => `<li>${esc(x)}</li>`).join('')}
         </ul>
         <p class="market-text">${esc(m.texto)}</p>
-        <ul class="market-where">${m.donde.map((d) => `<li>${esc(d)}</li>`).join('')}</ul>
       </article>
 
-
+      <article class="card proc-learn" aria-labelledby="h-learn2">
+        <div class="card-head">
+          <h2 class="label" id="h-learn2">${esc(a.titulo)}</h2>
+          ${icon('cap')}
+        </div>
+        <ul class="learn-rows">
+          ${a.items
+            .map(
+              (i) =>
+                `<li><p class="lr-t">${esc(i.titulo)}</p><p class="lr-s">${esc([i.lugar, i.inicio ? fmtRange(i.inicio, i.fin) : 'En curso'].filter(Boolean).join(' · '))}</p></li>`,
+            )
+            .join('')}
+          <li><p class="lr-t">${icon('award')} ${esc(cert.titulo)}</p><p class="lr-s">${esc(cert.institucion)} · terminado en ${fmtYM(cert.fecha)}</p></li>
+        </ul>
+      </article>
 
       ${extra('p-1', personal.motiva.titulo, personal.motiva.texto)}
       ${extra('p-2', personal.fuera.titulo, personal.fuera.texto)}

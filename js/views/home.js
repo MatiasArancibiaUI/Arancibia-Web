@@ -1,8 +1,8 @@
 import { profile } from '../../data/profile.js';
 import { personal } from '../../data/personal.js';
 import { icon } from '../icons.js';
-import { logo, hasLogo } from '../logos.js';
-import { esc, fmtYM, fmtYMLong, fmtRange, monthsBetween, yearsSince, isCurrent } from '../util.js';
+import { logo, hasLogo, companyLogo } from '../logos.js';
+import { esc, fmtYM, fmtRange, monthsBetween, yearsSince, isCurrent } from '../util.js';
 import { copyButton, cvButton, initTabs } from '../ui.js';
 
 export const title = 'Inicio';
@@ -32,10 +32,11 @@ function stackStrip() {
 const tag = (t) => `<li class="chip">${hasLogo(t) ? logo(t) : ''}${esc(t)}</li>`;
 
 export function render() {
-  const [actual, ...previas] = profile.experiencia;
+  const [actual] = profile.experiencia;
   const mesesActual = monthsBetween(actual.inicio, actual.fin);
-  const previasMeses = previas.map((e) => ({ ...e, meses: monthsBetween(e.inicio, e.fin) }));
-  const maxMeses = Math.max(...previasMeses.map((e) => e.meses));
+  // Las tres experiencias, con la actual primero.
+  const roles = profile.experiencia.map((e) => ({ ...e, meses: monthsBetween(e.inicio, e.fin) }));
+  const maxMeses = Math.max(...roles.map((e) => e.meses));
   const totalMeses = profile.experiencia.reduce((s, e) => s + monthsBetween(e.inicio, e.fin), 0);
   const anios = yearsSince(profile.inicioCarrera);
   const estudio = profile.educacion[0];
@@ -72,21 +73,17 @@ export function render() {
 
         <div class="tab-panels">
           <div role="tabpanel" id="panel-exp" aria-labelledby="tab-exp" class="panel" tabindex="0">
-            <div class="panel-note">
-              <p>${icon('heart', 'accent')} Hoy estoy en ${esc(actual.empresa)}, desde ${fmtYMLong(actual.inicio)}</p>
-              ${cvButton('sm')}
-            </div>
             <div class="pills">
-              ${previasMeses
+              ${roles
                 .map(
                   (e, i) => `
-                <div class="pill-row">
-                  <div class="pill" aria-hidden="true"><canvas data-kind="pill" data-seed="${11 + i * 7}" data-fill="${(0.15 + 0.6 * (e.meses / maxMeses)).toFixed(2)}"></canvas></div>
+                <div class="pill-row${e.fin ? '' : ' is-now'}">
+                  <div class="pill" aria-hidden="true"><canvas data-kind="pill" data-seed="${4 + i * 7}" data-fill="${(0.15 + 0.6 * (e.meses / maxMeses)).toFixed(2)}"></canvas></div>
                   <div class="pill-num">
                     <span class="dots" data-count="${e.meses}" aria-hidden="true">${e.meses}</span>
                     <span class="pill-meta">
                       <span class="unit" aria-hidden="true">meses</span>
-                      <span class="pill-label"><span class="sr-only">${e.meses} meses en </span>${esc(e.empresa)}</span>
+                      <span class="pill-label"><span class="sr-only">${e.meses} meses en </span>${companyLogo(e.empresa) || esc(e.empresa)}${e.fin ? '' : '<span class="now-tag"><span class="live-dot" aria-hidden="true"></span>actual</span>'}</span>
                     </span>
                   </div>
                 </div>`,
@@ -96,14 +93,16 @@ export function render() {
             <p class="trend">${icon('trendingUp')} ${totalMeses} meses diseñando, sumando los tres roles.</p>
           </div>
 
-          <div role="tabpanel" id="panel-tools" aria-labelledby="tab-tools" class="panel scroll-y" tabindex="0" hidden>
+          <div role="tabpanel" id="panel-tools" aria-labelledby="tab-tools" class="panel" tabindex="0" hidden>
             <dl class="tool-list">
-              ${profile.habilidades.map((h) => `<div><dt>${esc(h.corta)}</dt><dd><ul class="chips sm">${h.items.map(tag).join('')}</ul></dd></div>`).join('')}
+              ${profile.habilidades
+                .map((h) => `<div><dt><span class="dots" aria-hidden="true">${h.items.length}</span>${esc(h.corta)}</dt><dd>${h.items.map(esc).join(' · ')}</dd></div>`)
+                .join('')}
             </dl>
           </div>
 
-          <div role="tabpanel" id="panel-edu" aria-labelledby="tab-edu" class="panel scroll-y" tabindex="0" hidden>
-            <ul class="rows">
+          <div role="tabpanel" id="panel-edu" aria-labelledby="tab-edu" class="panel" tabindex="0" hidden>
+            <ul class="rows edu-grid">
               ${educacion.map((e) => `<li><div><p class="row-t">${esc(e.t)}</p><p class="row-s">${esc(e.s)}</p></div><p class="row-d">${esc(e.f)}</p></li>`).join('')}
             </ul>
           </div>

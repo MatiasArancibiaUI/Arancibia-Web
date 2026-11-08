@@ -40,7 +40,8 @@ function render() {
 
   const my = ++seq;
   const el = document.createElement('div');
-  el.className = 'view-host';
+  // La home entra completa en el marco; el resto de las vistas scrollea adentro.
+  el.className = route.path === '/' ? 'view-host' : 'view-host scroll-y scrolls';
   el.innerHTML = route.view.render();
   const prev = current;
   current = null;
