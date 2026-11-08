@@ -3,20 +3,22 @@ import * as home from './views/home.js';
 import * as experiencia from './views/experiencia.js';
 import * as proyectos from './views/proyectos.js';
 import * as sobreMi from './views/sobre-mi.js';
-import * as personal from './views/personal.js';
+import * as proceso from './views/proceso.js';
 import { mountDots } from './dots.js';
 import { initTheme } from './theme.js';
 import { initDock, setDockActive } from './dock.js';
 import { initSearch, focusSearch, closeSearch } from './search.js';
 import { initUI, cvButton } from './ui.js';
 import { prefersReducedMotion } from './util.js';
+import { rise, countUp, initClock } from './motion.js';
+import { brandMark } from './brand.js';
 
 const routes = [
   { path: '/', key: '1', label: 'Inicio', view: home, keywords: 'home dashboard tablero' },
   { path: '/experiencia', key: '2', label: 'Experiencia', view: experiencia, keywords: 'trabajo empleos cv byma uade dogma' },
   { path: '/proyectos', key: '3', label: 'Proyectos', view: proyectos, keywords: 'portfolio casos behance github' },
-  { path: '/sobre-mi', key: '4', label: 'Sobre mí', view: sobreMi, keywords: 'perfil cv habilidades idiomas contacto' },
-  { path: '/personal', key: '5', label: 'Personal', view: personal, keywords: 'aprendiendo estudios motivacion' },
+  { path: '/proceso', key: '4', label: 'Proceso', view: proceso, keywords: 'proceso habilidades herramientas ia stack aprendiendo estudios mercado etf cedear fci' },
+  { path: '/sobre-mi', key: '5', label: 'Sobre mí', view: sobreMi, keywords: 'perfil cv idiomas contacto educacion' },
 ];
 
 const main = document.getElementById('main');
@@ -27,7 +29,8 @@ let firstRender = true;
 let seq = 0;
 
 const findRoute = () => {
-  const path = location.hash.replace(/^#/, '') || '/';
+  let path = location.hash.replace(/^#/, '') || '/';
+  if (path === '/personal') path = '/proceso'; // ruta anterior
   return routes.find((r) => r.path === path) || routes[0];
 };
 
@@ -49,10 +52,8 @@ function render() {
     main.append(el);
     const cleanups = [route.view.mount?.(el), mountDots(el)].filter(Boolean);
     current = { route, el, cleanup: () => cleanups.forEach((fn) => fn()) };
-    if (!firstRender && !reduced) {
-      el.classList.add('entering');
-      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('entering')));
-    }
+    rise(el);
+    countUp(el);
     if (!firstRender) {
       el.querySelector('.view-title')?.focus({ preventScroll: true });
       announcer.textContent = `Vista: ${route.label}`;
@@ -90,7 +91,9 @@ function onKey(e) {
   if (r) location.hash = `#${r.path}`;
 }
 
-document.getElementById('cv-slot').outerHTML = cvButton();
+document.getElementById('cv-slot').outerHTML = cvButton('cv-top');
+document.getElementById('brand-slot').outerHTML = brandMark();
+initClock(document.getElementById('clock'));
 document.querySelector('.skip').addEventListener('click', (e) => {
   e.preventDefault();
   main.focus();

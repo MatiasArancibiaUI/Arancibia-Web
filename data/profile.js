@@ -123,6 +123,14 @@ export const profile = {
     { idioma: 'Inglés', corto: 'EN', nivel: 'Upper Intermediate', medidor: { valor: 5, total: 7 } },
   ],
 
+  // Del perfil del CV: productos financieros con los que trabajo.
+  mercado: {
+    titulo: 'Mercado de capitales',
+    instrumentos: ['CEDEARs', 'ETFs', 'Fondos Comunes de Inversión'],
+    texto: 'Experiencia en productos financieros de alta complejidad del mercado de capitales.',
+    donde: ['Sección Inversores y Financiamiento de la web de BYMA', 'Sitio web de Caja de Valores'],
+  },
+
   // Inicio de la carrera en diseño de producto (Dogma Solutions), para "años diseñando".
   inicioCarrera: '2023-03',
 };

@@ -1,5 +1,5 @@
-// Menú inferior semicircular: marca la vista activa, muestra su nombre
-// y permite mover el foco con las flechas izquierda y derecha.
+// Menú inferior horizontal: marca la vista activa y permite mover el foco
+// con las flechas izquierda y derecha.
 export function initDock(nav) {
   const items = [...nav.querySelectorAll('.dock-btn')];
   nav.addEventListener('keydown', (e) => {
@@ -12,11 +12,9 @@ export function initDock(nav) {
   });
 }
 
-export function setDockActive(nav, path, label) {
+export function setDockActive(nav, path) {
   nav.querySelectorAll('.dock-btn').forEach((a) => {
-    const on = a.getAttribute('href') === `#${path}`;
-    if (on) a.setAttribute('aria-current', 'page');
+    if (a.getAttribute('href') === `#${path}`) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
   });
-  nav.querySelector('.dock-label').textContent = label;
 }

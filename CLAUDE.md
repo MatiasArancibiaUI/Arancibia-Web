@@ -27,7 +27,7 @@ Sitio web personal de Matías Ezequiel Arancibia, AI Product Designer (UI/UX, De
 
 El sitio muestra cuatro cosas: proyectos, herramientas que usa, experiencia y medios de contacto. Es un portfolio que tiene que transmitir criterio de diseño y manejo de automatización con IA, así que la calidad visual y de código es parte del mensaje.
 
-Referencia visual: un tablero apaisado tipo dashboard (estilo "Rythea"): tarjetas redondeadas sobre fondo gris claro, números y ondas hechos de puntos rojos, una tarjeta negra de acento, foto recortada en blanco y negro que asoma sobre las tarjetas y un dock de navegación flotante. No cambiar esta dirección sin que yo lo pida.
+Referencia visual: un tablero apaisado tipo dashboard (composición "Rythea") con la estética técnica de "Sigil": acento naranja, píxeles cuadrados, retícula de plano de fondo, etiquetas en monoespaciada con un cuadrito naranja, esquinas naranjas en las tarjetas principales, una palabra del titular en tipografía de píxeles, una tarjeta negra de acento, la foto recortada en blanco y negro asomando sobre las tarjetas y un dock semicircular. El perfil (foto, nombre, pestañas) va a la izquierda y el trabajo (titular, stack, tarjetas) a la derecha. No cambiar esta dirección sin que yo lo pida.
 
 ## 2. Stack y estructura
 
@@ -41,8 +41,10 @@ Referencia visual: un tablero apaisado tipo dashboard (estilo "Rythea"): tarjeta
 | `#/` | Inicio (tablero tipo Rythea) | `1` | `js/views/home.js` |
 | `#/experiencia` | Experiencia | `2` | `js/views/experiencia.js` |
 | `#/proyectos` | Proyectos | `3` | `js/views/proyectos.js` |
-| `#/sobre-mi` | Sobre mí (formato CV) | `4` | `js/views/sobre-mi.js` |
-| `#/personal` | Personal (bento) | `5` | `js/views/personal.js` |
+| `#/proceso` | Proceso: proceso de diseño a código (destacado), herramientas de IA, habilidades, mercado de capitales y "Aprendiendo ahora". `#/personal` redirige acá | `4` | `js/views/proceso.js` |
+| `#/sobre-mi` | Sobre mí (ficha visual tipo CV) | `5` | `js/views/sobre-mi.js` |
+
+Menú inferior: barra horizontal centrada (`.dock`) con ícono y nombre en el mismo orden que los atajos: Inicio (casa), Experiencia (maletín), Proyectos (carpeta), Proceso (flujo), Sobre mí (credencial). En celular solo muestra el nombre de la vista activa.
 
 Cada vista exporta `title`, `render()` (devuelve HTML) y opcionalmente `mount(el)` (devuelve una función de limpieza). Para sumar una vista: crear el módulo, agregarlo al arreglo `routes` de `js/main.js` y un botón en el `.dock` de `index.html`. `/` o `Ctrl+K` abren la búsqueda, `Esc` la cierra.
 
@@ -50,9 +52,9 @@ Cada vista exporta `title`, `render()` (devuelve HTML) y opcionalmente `mount(el
 
 - `index.html`: barra superior, `<main id="main">` donde se monta la vista, dock, diálogo de contacto, metas, Open Graph y manifest.
 - `css/tokens.css` (tokens claro/oscuro) · `css/base.css` (reset, marco `.app`, transición de vistas, scroll fino) · `css/components.css` (botones, tarjetas, chips, menús, dock, diálogo) · `css/views.css` (una sección por vista + degradación por altura + modo apilado).
-- `js/main.js` (router y arranque) · `js/dock.js` · `js/search.js` (paleta de búsqueda en memoria) · `js/dots.js` (canvas de puntos: `wave`, `pill`, `ring`, `scatter`, `cover`) · `js/theme.js` · `js/ui.js` (copiar, menús, pestañas, contacto, botón de CV) · `js/icons.js` (íconos de línea estilo Lucide) · `js/util.js` (fechas, escape, normalizar).
-- **Datos (fuente de verdad, se editan acá y no en el HTML):** `data/profile.js` (CV: contacto, perfil, experiencia, educación, certificaciones, habilidades, idiomas, `cv`), `data/projects.js` (proyectos), `data/personal.js` (vista Personal).
-- `assets/`: `matias-bn.webp` (recorte B/N con alpha, 12 KB), íconos de la app, `og.jpg`. El CV va en `assets/cv-matias-arancibia.pdf`; al subirlo, poner esa ruta en `profile.cv` y los botones de descarga se activan solos.
+- `js/main.js` (router y arranque) · `js/dock.js` · `js/search.js` (paleta de búsqueda en memoria) · `js/dots.js` (canvas de píxeles: `wave`, `pill`, `ring`, `scatter`, `cover`, con movimiento lento) · `js/motion.js` (entrada escalonada, conteo de números, reloj de CABA) · `js/brand.js` (logo) · `js/logos.js` (logos de herramientas) · `js/theme.js` · `js/ui.js` (copiar, menús, pestañas, contacto, botón de CV) · `js/icons.js` (íconos de línea estilo Lucide) · `js/util.js` (fechas, escape, normalizar).
+- **Datos (fuente de verdad, se editan acá y no en el HTML):** `data/profile.js` (CV: contacto, perfil, experiencia, educación, certificaciones, habilidades, idiomas, `cv`), `data/projects.js` (proyectos), `data/personal.js` (vista Proceso: pasos del proceso, "Aprendiendo ahora" y las tarjetas personales PENDIENTES). `profile.mercado` guarda los instrumentos financieros del CV (CEDEARs, ETFs, Fondos Comunes de Inversión).
+- `assets/`: `matias-bn.webp` (recorte B/N con alpha, 12 KB), `logo.svg` / `logo-dark.svg` (monograma), `icon.svg` (favicon), íconos PNG de la app, `og.jpg`. El CV va en `assets/cv-matias-arancibia.pdf`; al subirlo, poner esa ruta en `profile.cv` y los botones de descarga se activan solos.
 - `manifest.webmanifest`: instalable como app (sin service worker).
 - `scripts/dev.mjs`: servidor local.
 - Nombres de archivos y carpetas en minúsculas, con guiones, sin acentos ni espacios.
@@ -62,7 +64,8 @@ Cada vista exporta `title`, `render()` (devuelve HTML) y opcionalmente `mount(el
 - El marco `.app` mide `min(100vw - 32px, 1440px)` × `min(100dvh - 32px, 920px)` y es contenedor de tamaño (`container: app / size`): las medidas usan `cqh`/`cqw` con `clamp()`.
 - Sin scroll de página desde 1024×700. Las vistas largas usan scroll interno (`.scroll-y`). Debajo de 760 px y 680 px de alto del marco se ocultan detalles secundarios antes de que algo se corte.
 - Con el marco de menos de 960 px de ancho o 600 px de alto, todo pasa a una columna con scroll interno en `.main` (celular y tablet vertical).
-- El dock reserva su espacio con `--reserve` en `.view`; nada importante puede quedar debajo del arco.
+- El menú reserva su espacio con `--reserve` en `.view` (alto del menú + margen); nada queda debajo.
+- Ninguna vista usa scroll interno en escritorio: todo el contenido se ve completo. Si no entra, primero se compacta (dos columnas, encabezado con contenido a la derecha del título) y después se ocultan detalles secundarios por altura. Solo en el modo apilado (celular) scrollea `.main`.
 - Meses y años se calculan en `js/util.js` (`monthsBetween` cuenta el mes de inicio y el de fin). Nunca escribir duraciones a mano.
 - Las consultas de contenedor no aplican a `.app` mismo: para cambiar variables por tamaño se usa `.app > *`.
 
@@ -74,36 +77,54 @@ Todo color, tipografía y radio sale de tokens CSS definidos en `:root`. No escr
 
 | Token | Valor | Uso |
 | --- | --- | --- |
-| `--bg` | `#e2e2e1` | Fondo de la página |
-| `--panel` | `#eeeeed` | Panel grande que contiene el tablero |
-| `--card` | `#fafafa` | Tarjetas |
-| `--soft` | `#e8e8e7` | Chips, barra de pestañas, tiles grises |
-| `--ink` | `#131313` | Texto principal |
-| `--mute` | `#6c6c6b` | Texto secundario y etiquetas |
-| `--red` | `#e3141c` | Acento: puntos, marcadores, números |
-| `--dot-off` | `#cdcdcc` | Puntos apagados |
-| `--black` | `#0d0d0d` | Tarjeta negra, dock, tile negro |
-| `--on-black` / `--on-black-mute` | `#f4f4f3` / `#9b9b9a` | Texto sobre negro |
+| `--bg` | `#e9e7e1` | Fondo de la página (gris cálido) |
+| `--panel` | `#f3f2ee` | Panel grande que contiene el tablero |
+| `--card` | `#fbfaf7` | Tarjetas |
+| `--soft` | `#ebe9e3` | Chips, barra de pestañas, tiles grises |
+| `--ink` | `#141413` | Texto principal |
+| `--mute` | `#6b6964` | Texto secundario y etiquetas |
+| `--accent` | `#ff5a00` | Acento naranja: píxeles, marcadores, cuadritos, esquinas |
+| `--accent-display` | `#e14b00` | Naranja para texto grande (números, palabra del titular), contraste de 3:1 o más |
+| `--accent-soft` | `#ffe4d4` | Celdas resaltadas, barrido de las píldoras |
+| `--dot-off` | `#dad7cf` | Píxeles apagados |
+| `--line` / `--grid` | `#e0ded7` / tinta al 5,5 % | Bordes finos / retícula de fondo |
+| `--black` | `#121211` | Tarjeta negra, dock activo, tile negro |
+| `--on-black` / `--on-black-mute` | `#f5f4f0` / `#9a9893` | Texto sobre negro |
 
-El tema oscuro redefine los mismos tokens. Reglas:
-- El rojo es el único acento. No sumar otros colores de marca.
-- El rojo se usa en puntos, marcadores y números, no en bloques de texto largo.
+El tema oscuro redefine los mismos tokens (ahí `--black` se invierte a claro). Reglas:
+- El naranja es el único acento. No sumar otros colores de marca. Los logos de herramientas van monocromos.
+- El naranja se usa en píxeles, marcadores, números grandes y una palabra del titular, nunca en texto chico ni en bloques de texto.
 - La tarjeta negra es el único elemento de alto contraste por sección. No convertir más tarjetas en negras.
 - Cualquier color nuevo se agrega como token con sus dos valores (claro y oscuro) y se prueba en ambos temas.
 
 ### Tipografía
 
-- Display de puntos: **Doto** (900), solo para números y siglas grandes (por ejemplo `3+`, `DS`). Nunca para texto corrido.
-- Cuerpo y títulos: **Plus Jakarta Sans** (400 a 800). Títulos en 700 con `letter-spacing: -.03em` y `text-wrap: balance`.
-- Etiquetas: 12px, 600, mayúsculas, `letter-spacing: .06em`, color `--mute`.
-- Las fuentes se cargan desde Google Fonts con fallback real (`ui-monospace` para Doto, `system-ui` para el cuerpo).
+- Display de píxeles: **Doto** (900, eje `ROND` en 0 = píxeles cuadrados), para números, siglas grandes y como mucho una palabra destacada por titular (`.hl`). Nunca para texto corrido.
+- Cuerpo y títulos: **Plus Jakarta Sans** (400 a 800). Títulos en 700 con `letter-spacing: -.035em` y `text-wrap: balance`.
+- Etiquetas, fechas, metadatos y subtítulos numerados (`.eyebrow` con `.idx` "01" a "05"): **JetBrains Mono** 500, 11px, mayúsculas, `letter-spacing: .08em`, color `--mute`. Las `.label` llevan un cuadrito naranja de 6px antes.
+- Las fuentes se cargan desde Google Fonts con fallback real (`ui-monospace` para Doto y la mono, `system-ui` para el cuerpo).
 - Texto corrido con un máximo de unos 65 caracteres de ancho.
 
 ### Forma
 
-- Panel principal: radio 32px. Tarjetas: 24px. Chips y botones: píldora (999px).
+- Panel principal: radio 28px. Tarjetas: 20px con borde de 1px `--line`. Tiles: 16px. Chips: etiqueta de 6px (los datos del perfil, píldora). Botones de ícono y dock: círculos.
 - Separación entre tarjetas: 20px en escritorio, menos en celular.
-- Las sombras son casi inexistentes. La jerarquía sale del color de fondo, no de sombras.
+- Sin sombras. La jerarquía sale del color de fondo, los bordes finos y el espacio.
+- Elementos gráficos permitidos (y solo estos): retícula de fondo cada 48px, esquina naranja `.tick` en las tarjetas principales, cuadritos naranjas en etiquetas y viñetas, rayado diagonal fino en el tile gris, borde punteado en el pie de los proyectos.
+
+### Logo
+
+Monograma "MA" en píxeles cuadrados (grilla de 13 × 7) con un cursor naranja de tres píxeles que parpadea: design-to-code. Vive en `js/brand.js` (`brandMark()` para el sitio, `brandSVG()` para generar archivos). Archivos: `assets/logo.svg`, `assets/logo-dark.svg`, `assets/icon.svg` y los PNG de la app.
+
+### Movimiento
+
+Discreto y siempre anulado con `prefers-reduced-motion`:
+- Entrada escalonada de los bloques al cambiar de vista (`.rise`, medio segundo). Nunca en `.stack` (rompe el apilado).
+- Números de píxeles que cuentan desde cero (`data-count`).
+- Canvas a 12 cuadros por segundo: la onda crece una vez y después respira un píxel, una columna recorre las píldoras, el último punto del gráfico de dispersión late, el anillo gira muy lento.
+- Franja de logos (`.logo-strip`) en desplazamiento lento; se pausa al pasar el mouse.
+- El cursor del logo, el punto del reloj y "Actual" parpadean en pasos.
+- Hover: tarjetas y botones suben 2px y toman el naranja.
 
 ### Componentes existentes (reutilizarlos, no inventar variantes)
 
@@ -111,7 +132,8 @@ El tema oscuro redefine los mismos tokens. Reglas:
 - `.chip` y `.chips`: etiquetas de tecnologías o datos cortos.
 - `.label`: etiqueta en mayúsculas.
 - `.dots`: número o sigla en Doto.
-- `canvas[data-kind="wave"]` y `canvas[data-kind="ring"]`: ondas y anillo de puntos rojos, dibujados con `data-seed` fijo para que sean estables. Leen los colores de los tokens y se redibujan al cambiar el tema o el tamaño.
+- `.logo-strip`: franja "Stack" con los logos de las herramientas (`js/logos.js`, Simple Icons CC0). Cursor, Pendo y los productos de Microsoft no tienen logo libre y se muestran solo con su nombre. `toolChip(nombre)` arma una etiqueta con logo.
+- `canvas[data-kind="wave"]` y `canvas[data-kind="ring"]`: ondas y anillo de píxeles naranjas, dibujados con `data-seed` fijo para que sean estables. Leen los colores de los tokens y se redibujan al cambiar el tema o el tamaño.
 - `.tabcard` con `role="tablist"`: pestañas de Experiencia, Herramientas y Educación.
 - `.tile`: acceso a una red (LinkedIn, Behance).
 - `.dock`: navegación flotante inferior con la sección activa marcada.
@@ -122,7 +144,10 @@ Nombres actuales en el código: `.card`, `.card.black`, `.chip`/`.chips`, `.labe
 
 ## 4. Layout y responsive
 
-- Escritorio: tablero apaisado de dos columnas (izquierda: titular, flujo de trabajo y proyectos; derecha: perfil con foto, pestañas y accesos).
+- Escritorio: tablero apaisado de dos columnas, 43 / 57 (izquierda: perfil con foto, nombre, rol, ubicación e idiomas en una línea, ficha compacta de email y teléfono, pestañas y accesos; derecha: subtítulo numerado, titular, franja de stack, trabajo actual, aprendiendo y proyecto destacado).
+- Experiencia: la línea de tiempo (barras tipo Gantt con nombre y duración) va en el encabezado, a la derecha del título. BYMA a la izquierda con sus puntos en dos columnas equilibradas; UADE y Dogma a la derecha, con todos sus puntos visibles.
+- Proceso: el proceso es una columna alta (tarjeta negra) con los cinco pasos en vertical; al lado, IA y mercado de capitales arriba y habilidades abajo. "Aprendiendo ahora" va en el encabezado.
+- Sobre mí: cuatro columnas. Datos de contacto y bio ocupan columnas completas; experiencia, idiomas, formación y certificaciones son tarjetas chicas.
 - Menos de 980px: una columna. Menos de 680px: todo apilado, la foto pasa debajo del nombre y desaparecen los botones de texto de la barra superior.
 - Margen lateral mínimo de 16px en cualquier ancho, respetando `env(safe-area-inset-*)`.
 - Nunca scroll horizontal en la página. Solo tablas o bloques de código pueden desbordar, dentro de su propio contenedor con `overflow-x: auto`.

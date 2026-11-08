@@ -16,9 +16,9 @@
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
 
-  <meta name="theme-color" content="#e2e2e1">
-  <meta name="theme-color" content="#e2e2e1" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#e9e7e1">
+  <meta name="theme-color" content="#e9e7e1" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b0b0a" media="(prefers-color-scheme: dark)">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -36,7 +36,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@900&family=Plus+Jakarta+Sans:wght@400..800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght,ROND@900,0&family=JetBrains+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400..800&display=swap">
   <link rel="preload" as="image" href="assets/matias-bn.webp" type="image/webp">
 
   <link rel="stylesheet" href="css/tokens.css">
@@ -52,15 +52,12 @@
     <header class="topbar">
       <div class="topbar-left">
         <a class="brand" href="#/" aria-label="Matías Arancibia, inicio">
-          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-            <g fill="currentColor">
-              <circle cx="16" cy="4.5" r="2.6"/><circle cx="24.1" cy="7.9" r="2.6"/><circle cx="27.5" cy="16" r="2.6"/><circle cx="24.1" cy="24.1" r="2.6"/>
-              <circle cx="16" cy="27.5" r="2.6"/><circle cx="7.9" cy="24.1" r="2.6"/><circle cx="4.5" cy="16" r="2.6"/><circle cx="7.9" cy="7.9" r="2.6"/>
-              <circle cx="16" cy="16" r="4.2"/>
-            </g>
-          </svg>
+          <span class="brand-slot" id="brand-slot"></span>
           <span class="brand-name">Matías Arancibia</span>
         </a>
+        <p class="clock" id="clock"><span class="clock-dot" aria-hidden="true"></span>CABA <time class="clock-time"></time></p>
+      </div>
+      <div class="topbar-right">
         <div class="topbar-tools">
           <div class="search" role="search">
             <label class="sr-only" for="q">Buscar en el sitio</label>
@@ -72,8 +69,6 @@
           </div>
           <button type="button" class="icon-btn" id="theme-btn" aria-label="Cambiar tema"></button>
         </div>
-      </div>
-      <div class="topbar-right">
         <span class="cv-slot" id="cv-slot"></span>
         <div class="menu-wrap">
           <button type="button" class="icon-btn" data-menu-toggle aria-expanded="false" aria-controls="links-menu" aria-label="Mis enlaces" title="Enlaces">
@@ -87,22 +82,26 @@
     <main id="main" class="main" tabindex="-1"></main>
 
     <nav class="dock" id="dock" aria-label="Secciones">
-      <a class="dock-btn d-1" href="#/experiencia" aria-label="Experiencia" title="Experiencia (2)">
-        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+      <a class="dock-btn" href="#/" title="Inicio (1)">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        <span class="dock-text">Inicio</span>
       </a>
-      <a class="dock-btn d-2" href="#/proyectos" aria-label="Proyectos" title="Proyectos (3)">
-        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+      <a class="dock-btn" href="#/experiencia" title="Experiencia (2)">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        <span class="dock-text">Experiencia</span>
       </a>
-      <a class="dock-btn d-3" href="#/" aria-label="Inicio" title="Inicio (1)">
-        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+      <a class="dock-btn" href="#/proyectos" title="Proyectos (3)">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg>
+        <span class="dock-text">Proyectos</span>
       </a>
-      <a class="dock-btn d-4" href="#/personal" aria-label="Personal" title="Personal (5)">
-        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>
+      <a class="dock-btn" href="#/proceso" title="Proceso (4)">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/></svg>
+        <span class="dock-text">Proceso</span>
       </a>
-      <a class="dock-btn d-5" href="#/sobre-mi" aria-label="Sobre mí" title="Sobre mí (4)">
-        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <a class="dock-btn" href="#/sobre-mi" title="Sobre mí (5)">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M16 10h2"/><path d="M16 14h2"/><path d="M6.17 15a3 3 0 0 1 5.66 0"/><circle cx="9" cy="11" r="2"/><rect x="2" y="5" width="20" height="14" rx="2"/></svg>
+        <span class="dock-text">Sobre mí</span>
       </a>
-      <span class="dock-label" aria-hidden="true">Inicio</span>
     </nav>
   </div>
 

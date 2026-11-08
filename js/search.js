@@ -42,7 +42,10 @@ function buildIndex(routes) {
     idx.push({ group: 'Experiencia', label: `${e.cargo} · ${e.empresa}`, hint: fmtRange(e.inicio, e.fin), keys: [e.empresaCompleta, ...e.puntos].join(' '), run: go('#/experiencia') }),
   );
   profile.habilidades.forEach((h) =>
-    h.items.forEach((i) => idx.push({ group: 'Herramientas', label: i, hint: h.corta, keys: h.categoria, run: go('#/sobre-mi') })),
+    h.items.forEach((i) => idx.push({ group: 'Herramientas', label: i, hint: h.corta, keys: h.categoria, run: go('#/proceso') })),
+  );
+  profile.mercado.instrumentos.forEach((x) =>
+    idx.push({ group: 'Mercado de capitales', label: x, hint: 'Productos financieros', keys: 'mercado capitales finanzas instrumentos byma', run: go('#/proceso') }),
   );
   profile.educacion.forEach((e) =>
     idx.push({ group: 'Estudios', label: e.titulo, hint: `${e.institucionCorta} · ${fmtRange(e.inicio, e.fin)}`, keys: e.institucion, run: go('#/sobre-mi') }),

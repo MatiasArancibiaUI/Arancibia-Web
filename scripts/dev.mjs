@@ -21,7 +21,7 @@ const types = {
   '.ico': 'image/x-icon',
 };
 
-createServer(async (req, res) => {
+const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://localhost');
     let file = normalize(join(root, decodeURIComponent(url.pathname)));
@@ -34,4 +34,18 @@ createServer(async (req, res) => {
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('No encontrado');
   }
-}).listen(port, () => console.log(`Portfolio en http://localhost:${port}`));
+});
+
+// Si el puerto está ocupado (otro servidor abierto), prueba el siguiente.
+let tryPort = port;
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE' && tryPort < port + 10) {
+    console.log(`El puerto ${tryPort} está ocupado, pruebo con ${tryPort + 1}…`);
+    server.listen(++tryPort);
+    return;
+  }
+  console.error(err.message);
+  process.exit(1);
+});
+server.on('listening', () => console.log(`Portfolio en http://localhost:${tryPort}  (Ctrl+C para cortar)`));
+server.listen(tryPort);

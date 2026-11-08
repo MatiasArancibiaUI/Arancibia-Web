@@ -86,8 +86,12 @@ a { color: inherit; text-decoration: none; }
   inset: 0;
   transition: opacity var(--t) var(--ease), transform var(--t) var(--ease);
 }
-.view-host.entering { opacity: 0; transform: translateY(12px); }
 .view-host.leaving { opacity: 0; transition-duration: var(--t-fast); }
+
+/* Entrada escalonada de los bloques de cada vista (js/motion.js asigna --i). */
+/* Relleno "backwards": al terminar no queda ningún translate aplicado (no altera el apilado de capas). */
+.rise { animation: rise 520ms var(--ease) backwards; animation-delay: calc(var(--i, 0) * 45ms); }
+@keyframes rise { from { opacity: 0; translate: 0 10px; } }
 
 .scroll-y {
   overflow-y: auto;
@@ -100,5 +104,5 @@ a { color: inherit; text-decoration: none; }
 
 @media (prefers-reduced-motion: reduce) {
   :root { --t: 0ms; --t-fast: 0ms; --lift: 0px; }
-  .view-host.entering { transform: none; }
+  .rise { animation: none; }
 }

@@ -1,5 +1,6 @@
 import { projects } from '../../data/projects.js';
 import { icon } from '../icons.js';
+import { toolChip } from '../logos.js';
 import { esc, normalize } from '../util.js';
 import { getQuery, setQuery } from '../search.js';
 
@@ -20,7 +21,7 @@ function card(p) {
       <p class="label">${esc(p.tipo)}</p>
       <h2 class="pcard-title">${esc(p.titulo)}</h2>
       <p class="pcard-desc">${esc(p.descripcion)}</p>
-      ${p.tecnologias.length ? `<ul class="chips sm">${p.tecnologias.map((t) => `<li class="chip">${esc(t)}</li>`).join('')}</ul>` : ''}
+      ${p.tecnologias.length ? `<ul class="chips sm">${p.tecnologias.map(toolChip).join('')}</ul>` : ''}
       <p class="pcard-meta">${esc(p.anio)} · ${esc(p.empresa)} · ${esc(p.rol)}</p>
     </div>`;
   if (p.url) {
@@ -42,7 +43,7 @@ export function render() {
   return `
   <section class="view proj">
     <header class="view-head">
-      <h1 class="headline view-title" tabindex="-1">Proyectos que diseñé.</h1>
+      <div><p class="eyebrow"><span class="idx">03</span> Proyectos</p><h1 class="headline view-title" tabindex="-1">Proyectos que <span class="hl">diseñé</span>.</h1></div>
       <div class="filters" role="group" aria-label="Filtrar por destino">
         ${['todos', 'behance', 'github']
           .map(

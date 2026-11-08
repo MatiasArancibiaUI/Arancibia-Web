@@ -17,6 +17,15 @@
         ],
         "createdAt": "2026-11-08T06:16:03.134Z",
         "reason": "false positive: static scan of div.app; its children .topbar and .view carry their own inset (--pad-x), verified in rendered screenshots"
+      },
+      {
+        "rule": "marquee",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-08T06:47:18.956Z",
+        "reason": "intentional: the user asked for more movement and tool logos; strip is slow, pauses on hover, stops under prefers-reduced-motion, duplicate list is aria-hidden and every tool is also listed statically in the Herramientas tab"
       }
     ]
   }
