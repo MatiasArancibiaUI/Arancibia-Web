@@ -187,7 +187,7 @@ export function render() {
             </div>
           </div>
           <div class="ring">
-            <canvas data-kind="ring" data-seed="3" aria-hidden="true"></canvas>
+            <canvas data-kind="orb" data-seed="3" aria-hidden="true"></canvas>
             <p class="ring-label"><span class="dots" aria-hidden="true">DS</span><span class="ring-unit">Design System</span></p>
           </div>
           <a class="play-link" href="#/proyectos">Ver proyecto <span class="play">${icon('play')}</span></a>

@@ -405,6 +405,76 @@
   }
 }
 
+/* Escritorio (marco de 960 × 600 o más): sidebar fijo a todo el alto del marco. Toma lo que era la
+   barra superior (logo, buscador, CV, tema y enlaces) y las secciones; el contenido ocupa el resto del
+   alto. La barra superior y sus grupos pasan a "display: contents" para ubicar cada control en el
+   sidebar sin tocar el HTML de celular. Los cortes equivalen a 960 + 32 y 600 + 32 de ventana. */
+@media (min-width: 992px) and (min-height: 632px) {
+  .app {
+    --side: 96px;
+    --cols: minmax(0, 40fr) minmax(0, 60fr);
+    grid-template-columns: var(--side) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
+  }
+  /* Fondo y borde del sidebar. */
+  .app::before {
+    content: "";
+    grid-column: 1;
+    grid-row: 1 / -1;
+    background: var(--card);
+    border-right: 1px solid var(--line);
+  }
+  .topbar, .topbar-left, .topbar-right, .topbar-tools { display: contents; }
+  .main { grid-column: 2; grid-row: 1 / -1; }
+
+  .topbar .brand, .topbar .search, #theme-btn, .topbar .cv-top, .topbar .menu-wrap, .dock { grid-column: 1; justify-self: center; }
+  .topbar .brand { grid-row: 1; margin: 22px 0 18px; }
+  .brand-name { display: none; }
+  .topbar .search { grid-row: 2; }
+  .dock { grid-row: 3; align-self: center; }
+  .topbar .cv-top { grid-row: 4; }
+  #theme-btn { grid-row: 5; margin: 8px 0; }
+  .topbar .menu-wrap { grid-row: 6; margin-bottom: 22px; }
+
+  /* Controles del sidebar: cuadrados redondeados, no círculos. */
+  .topbar .icon-btn, .topbar .search { border-radius: 14px; }
+
+  /* Buscador: botón que al enfocarse se despliega hacia la derecha, sobre el contenido. */
+  .topbar .search { z-index: 20; width: 44px; padding: 0; justify-content: center; transition: width var(--t) var(--ease); }
+  .topbar .search > .ic { color: var(--ink); }
+  .topbar .search kbd { display: none; }
+  .topbar .search input { position: absolute; inset: 0; width: 100%; padding: 0; opacity: 0; cursor: pointer; }
+  .topbar .search:focus-within { justify-self: start; width: 380px; margin-left: calc((var(--side) - 44px) / 2); padding: 0 12px 0 14px; justify-content: flex-start; }
+  .topbar .search:focus-within > .ic { color: var(--mute); }
+  .topbar .search:focus-within input { position: static; opacity: 1; cursor: text; }
+
+  /* Enlaces: el menú se abre hacia la derecha y hacia arriba. */
+  .topbar .menu-right { top: auto; right: auto; bottom: 0; left: calc(100% + 12px); }
+
+  /* Secciones: columna de botones con ícono y nombre, sin pastilla alrededor. */
+  .dock {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    translate: none;
+    flex-direction: column;
+    gap: 4px;
+    height: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+  .dock-btn { flex-direction: column; justify-content: center; gap: 6px; width: 76px; height: auto; padding: 12px 4px 10px; border-radius: 14px; font-size: 11px; }
+  .dock-btn .ic { width: 19px; height: 19px; }
+}
+/* Escritorio angosto (marco de 960 a 1200): sidebar solo con íconos (el nombre queda en el title) y tablero 43/57. */
+@media (min-width: 992px) and (max-width: 1231.98px) and (min-height: 632px) {
+  .app { --side: 76px; --cols: minmax(0, 43fr) minmax(0, 57fr); }
+  .dock-btn { width: 52px; height: 52px; padding: 0; }
+  .dock-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+
 /* --- Contacto ----------------------------------------------------------- */
 dialog {
   width: min(440px, 100vw - 32px);

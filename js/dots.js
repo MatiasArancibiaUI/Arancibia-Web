@@ -23,11 +23,16 @@ const tokens = () => {
   if (tokenCache) return { ...tokenCache };
   const cs = getComputedStyle(document.documentElement);
   const get = (n) => cs.getPropertyValue(n).trim();
-  tokenCache = { accent: get('--accent'), off: get('--dot-off'), offBlack: get('--dot-off-black'), soft: get('--accent-soft') };
+  tokenCache = { accent: get('--accent'), off: get('--dot-off'), offBlack: get('--dot-off-black'), soft: get('--accent-soft'), onBlack: get('--on-black') };
   return { ...tokenCache };
 };
 
-const px = (ctx, x, y, r) => ctx.fillRect(x - r, y - r, r * 2, r * 2);
+let dprNow = 1;
+const snap = (v) => Math.round(v * dprNow) / dprNow;
+const px = (ctx, x, y, r) => {
+  const s = Math.max(1, Math.round(r * 2 * dprNow)) / dprNow;
+  ctx.fillRect(snap(x - r), snap(y - r), s, s);
+};
 const easeOut = (t) => 1 - Math.pow(1 - t, 3);
 
 // Columnas de píxeles naranjas de alturas distintas. En vivo, cada columna respira ±1 píxel.
@@ -82,22 +87,67 @@ function pill(ctx, w, h, rng, c, { progress, t }, canvas) {
   }
 }
 
-// Anillo de partículas para la tarjeta de acento; gira muy despacio.
-function ring(ctx, w, h, rng, c, { t }) {
+// Globo de puntos blancos para la tarjeta de acento: paralelos y meridianos que giran despacio, polvo de
+// partículas que titila alrededor, una línea de escaneo que lo recorre y lo ilumina, y cada tanto una
+// franja que se corre como un glitch. Unas pocas partículas son naranjas.
+function orb(ctx, w, h, rng, c, { t }) {
   const cx = w / 2;
   const cy = h / 2;
-  const R = Math.min(w, h) * 0.4;
-  const n = Math.round(Math.min(1400, R * 9));
-  const angle = t * 0.05;
-  ctx.fillStyle = c.accent;
-  for (let k = 0; k < n; k++) {
-    const a = rng() * Math.PI * 2;
-    const g = (rng() + rng() + rng() - 1.5) / 1.5;
-    const wob = 0.07 * Math.sin(a * 5 + 1.3) + 0.04 * Math.sin(a * 11);
-    const rr = R * (1 + g * 0.16 + wob);
-    const size = 0.5 + rng() * 1.1;
-    ctx.globalAlpha = 0.25 + rng() * 0.7;
-    px(ctx, cx + Math.cos(a + angle) * rr, cy + Math.sin(a + angle) * rr, size);
+  const R = Math.min(w * 0.44, h * 0.47);
+  const spin = t * 0.22;
+  const tilt = 0.38;
+  const scanY = t ? ((t * 55) % (h + 80)) - 40 : -999;
+  const tick = Math.floor(t * 2);
+  const glitchOn = t > 0 && (tick * 2654435761) % 7 === 0;
+  const glitchY = (tick * 97) % Math.max(1, Math.round(h));
+  const glitchDx = ((tick % 2) * 2 - 1) * 10;
+  const shift = (y) => (glitchOn && Math.abs(y - glitchY) < 9 ? glitchDx : 0);
+
+  // Polvo de fondo en toda la tarjeta.
+  ctx.fillStyle = c.onBlack;
+  for (let k = 0; k < 110; k++) {
+    const x = rng() * w;
+    const y = rng() * h;
+    const ph = rng() * 6.28;
+    ctx.globalAlpha = 0.06 + 0.16 * (0.5 + 0.5 * Math.sin(t * 1.6 + ph));
+    px(ctx, x + shift(y), y, 0.6);
+  }
+
+  // Puntos del globo: paralelos y meridianos.
+  const sphere = [];
+  const L = 11;
+  for (let li = 0; li < L; li++) {
+    const u = -0.92 + (1.84 * li) / (L - 1);
+    const count = Math.round(56 * Math.sqrt(1 - u * u)) + 6;
+    for (let k = 0; k < count; k++) sphere.push([u, (Math.PI * 2 * k) / count + li * 0.3]);
+  }
+  const M = 9;
+  for (let m = 0; m < M; m++) {
+    for (let k = 1; k < 26; k++) sphere.push([-1 + (2 * k) / 26, (Math.PI * 2 * m) / M]);
+  }
+  const pts = sphere.map(([u, phi]) => {
+    const rxy = Math.sqrt(1 - u * u);
+    const x = rxy * Math.cos(phi);
+    const z = rxy * Math.sin(phi);
+    const x1 = x * Math.cos(spin) + z * Math.sin(spin);
+    const z1 = -x * Math.sin(spin) + z * Math.cos(spin);
+    const y2 = u * Math.cos(tilt) - z1 * Math.sin(tilt);
+    const z2 = u * Math.sin(tilt) + z1 * Math.cos(tilt);
+    const persp = 1 / (1.25 - z2 * 0.25);
+    const sy = cy + y2 * R * persp;
+    return { sx: cx + x1 * R * persp + shift(sy), sy, depth: (z2 + 1) / 2, hot: rng() < 0.03 };
+  });
+  pts.sort((p, q) => p.depth - q.depth);
+  for (const p of pts) {
+    const lit = Math.max(0, 1 - Math.abs(p.sy - scanY) / 14);
+    ctx.globalAlpha = Math.min(1, 0.1 + 0.75 * p.depth * p.depth + lit * 0.6);
+    ctx.fillStyle = p.hot ? c.accent : c.onBlack;
+    px(ctx, p.sx, p.sy, 0.55 + p.depth * 0.85 + lit * 0.35);
+  }
+  if (t) {
+    ctx.globalAlpha = 0.12;
+    ctx.fillStyle = c.onBlack;
+    ctx.fillRect(0, snap(scanY), w, 1 / dprNow);
   }
   ctx.globalAlpha = 1;
 }
@@ -178,13 +228,190 @@ function dissolve(ctx, w, h, rng, c, { t }) {
       const keep = Math.pow(1 - j / rows, 1.8);
       const flicker = t ? 0.12 * Math.sin(t * 1.4 + wobble) : 0;
       if (j > 0 && r0 + flicker > keep) continue;
-      ctx.fillRect(i * pitch, h - (j + 1) * pitch, size, size);
+      ctx.fillRect(snap(i * pitch), snap(h - (j + 1) * pitch), snap(size), snap(size));
     }
   }
 }
 
-const KINDS = { wave, pill, ring, scatter, cover, dissolve };
-const LIVE = new Set(['wave', 'pill', 'ring', 'scatter', 'dissolve']);
+// Ilustraciones de las etapas del proceso (#/proceso): cada una es una figura hecha de partículas blancas
+// (líneas, arcos y rellenos muestreados). Al cambiar data-variant, las mismas partículas viajan en arco
+// hasta la figura nueva. Comparte la estética del globo: profundidad, polvo, escaneo y glitch.
+const STAGE_N = 680;
+const TAU = Math.PI * 2;
+const L = (x1, y1, x2, y2) => ['l', x1, y1, x2, y2];
+const C = (x, y, r, a0 = 0, a1 = TAU) => ['c', x, y, r, a0, a1];
+const F = (x1, y1, x2, y2, k = 1) => ['f', x1, y1, x2, y2, k];
+const rect = (x1, y1, x2, y2) => [L(x1, y1, x2, y1), L(x2, y1, x2, y2), L(x2, y2, x1, y2), L(x1, y2, x1, y1)];
+
+const SHAPES = {
+  idear: () => {
+    const rays = [];
+    for (let k = 0; k < 7; k++) {
+      const a = Math.PI + 0.25 + (k * (Math.PI - 0.5)) / 6;
+      rays.push(L(Math.cos(a) * 0.74, -0.2 + Math.sin(a) * 0.74, Math.cos(a) * 0.9, -0.2 + Math.sin(a) * 0.9));
+    }
+    return [
+      C(0, -0.2, 0.52, Math.PI / 2 + 0.62, Math.PI / 2 + TAU - 0.62),
+      L(-0.3, 0.22, -0.2, 0.46), L(0.3, 0.22, 0.2, 0.46),
+      L(-0.22, 0.5, 0.22, 0.5), L(-0.2, 0.6, 0.2, 0.6), L(-0.13, 0.7, 0.13, 0.7),
+      L(-0.14, 0.12, -0.06, -0.16), L(-0.06, -0.16, 0.02, 0.06), L(0.02, 0.06, 0.1, -0.16), L(0.1, -0.16, 0.16, 0.12),
+      ...rays,
+    ];
+  },
+  investigar: () => [
+    C(-0.14, -0.14, 0.5), C(-0.14, -0.14, 0.4, 3.5, 4.7),
+    L(0.22, 0.22, 0.7, 0.7), L(0.27, 0.17, 0.75, 0.65), L(0.17, 0.27, 0.65, 0.75),
+    F(-0.46, -0.46, 0.18, 0.18, 0.25),
+  ],
+  disenar: () => [
+    ...rect(-0.82, -0.62, 0.82, 0.62), L(-0.82, -0.4, 0.82, -0.4),
+    C(-0.72, -0.51, 0.035), C(-0.62, -0.51, 0.035), C(-0.52, -0.51, 0.035),
+    L(-0.46, -0.4, -0.46, 0.62),
+    ...rect(-0.34, -0.28, 0.12, 0.1), ...rect(0.22, -0.28, 0.7, 0.1), ...rect(-0.34, 0.2, 0.7, 0.5),
+    F(-0.3, -0.24, 0.08, 0.06, 0.6),
+    L(0.42, 0.28, 0.42, 0.5), L(0.42, 0.28, 0.58, 0.44), L(0.58, 0.44, 0.42, 0.5),
+  ],
+  validar: () => [
+    C(0, 0, 0.64, 0.2, 2.9), C(0, 0, 0.64, 3.34, 6.05),
+    L(0.62, 0.17, 0.7, 0.36), L(0.62, 0.17, 0.44, 0.25),
+    L(-0.62, -0.17, -0.7, -0.36), L(-0.62, -0.17, -0.44, -0.25),
+    L(-0.26, 0.02, -0.06, 0.22), L(-0.06, 0.22, 0.3, -0.2),
+    L(-0.26, 0.08, -0.06, 0.28), L(-0.06, 0.28, 0.3, -0.14),
+  ],
+  documentar: () => [
+    L(-0.46, -0.66, 0.22, -0.66), L(0.22, -0.66, 0.46, -0.42), L(0.46, -0.42, 0.46, 0.66), L(0.46, 0.66, -0.46, 0.66), L(-0.46, 0.66, -0.46, -0.66),
+    L(0.22, -0.66, 0.22, -0.42), L(0.22, -0.42, 0.46, -0.42),
+    L(-0.32, -0.36, 0.06, -0.36), L(-0.32, -0.32, 0.06, -0.32),
+    L(-0.32, -0.16, 0.32, -0.16), L(-0.32, -0.02, 0.2, -0.02), L(-0.32, 0.12, 0.3, 0.12),
+    L(-0.32, 0.26, 0.12, 0.26), L(-0.32, 0.4, 0.28, 0.4), L(-0.32, 0.52, 0.02, 0.52),
+  ],
+  generar: () => {
+    const layers = [[-0.66, [-0.44, 0, 0.44]], [0, [-0.6, -0.2, 0.2, 0.6]], [0.66, [-0.3, 0.3]]];
+    const prims = [];
+    layers.forEach(([x, ys]) => ys.forEach((y) => prims.push(C(x, y, 0.09), F(x - 0.04, y - 0.04, x + 0.04, y + 0.04, 0.8))));
+    for (let i = 0; i < layers.length - 1; i++) {
+      const [x1, a] = layers[i];
+      const [x2, b] = layers[i + 1];
+      a.forEach((y1) => b.forEach((y2) => prims.push(['l', x1 + 0.09, y1, x2 - 0.09, y2, 0.55])));
+    }
+    return prims;
+  },
+  desplegar: () => {
+    const prims = [L(0, -0.66, 0.7, 0.52), L(0.7, 0.52, -0.7, 0.52), L(-0.7, 0.52, 0, -0.66)];
+    for (let y = -0.38; y < 0.5; y += 0.15) {
+      const half = ((y + 0.66) / 1.18) * 0.7 * 0.78;
+      prims.push(['l', -half, y, half, y, 0.5]);
+    }
+    prims.push(L(-0.86, 0.72, 0.86, 0.72));
+    return prims;
+  },
+};
+
+const shapeCache = new Map();
+function shapePoints(name) {
+  if (shapeCache.has(name)) return shapeCache.get(name);
+  const prims = (SHAPES[name] || SHAPES.idear)();
+  const rng = mulberry32(hashString(name));
+  const weight = (p) => {
+    if (p[0] === 'l') return Math.hypot(p[3] - p[1], p[4] - p[2]) * (p[5] ?? 1);
+    if (p[0] === 'c') return p[3] * (p[5] - p[4]);
+    return (p[3] - p[1]) * (p[4] - p[2]) * 6 * p[5];
+  };
+  const total = prims.reduce((a, p) => a + weight(p), 0);
+  const out = [];
+  prims.forEach((p, idx) => {
+    const n = idx === prims.length - 1 ? STAGE_N - out.length : Math.round((weight(p) / total) * STAGE_N);
+    for (let k = 0; k < n && out.length < STAGE_N; k++) {
+      const f = (k + 0.5) / Math.max(1, n);
+      if (p[0] === 'l') out.push([p[1] + (p[3] - p[1]) * f, p[2] + (p[4] - p[2]) * f]);
+      else if (p[0] === 'c') {
+        const a = p[4] + (p[5] - p[4]) * f;
+        out.push([p[1] + Math.cos(a) * p[3], p[2] + Math.sin(a) * p[3]]);
+      } else out.push([p[1] + rng() * (p[3] - p[1]), p[2] + rng() * (p[4] - p[2])]);
+    }
+  });
+  while (out.length < STAGE_N) out.push(out[out.length % Math.max(1, out.length)] || [0, 0]);
+  shapeCache.set(name, out);
+  return out;
+}
+
+const easeInOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+
+function stage(ctx, w, h, rng, c, { t }, canvas) {
+  const name = canvas.dataset.variant || 'idear';
+  const target = shapePoints(name);
+  let st = canvas.__stage;
+  // Posiciones en arreglos planos [x0, y0, x1, y1, ...] que se reutilizan: nada se crea por cuadro.
+  if (!st) {
+    // Primera vez: las partículas arrancan dispersas y se arman.
+    const r0 = mulberry32(7);
+    const from = new Float32Array(STAGE_N * 2);
+    for (let i = 0; i < STAGE_N; i++) {
+      from[i * 2] = (r0() * 2 - 1) * 1.6;
+      from[i * 2 + 1] = (r0() * 2 - 1) * 1.1;
+    }
+    st = canvas.__stage = { name, from, start: t, cur: new Float32Array(STAGE_N * 2) };
+  } else if (st.name !== name) {
+    st.from.set(st.cur);
+    st.name = name;
+    st.start = t;
+  }
+  const cx = w / 2;
+  const cy = h * 0.53;
+  const R = Math.min(w * 0.36, h * 0.36);
+  const scanY = t ? ((t * 60) % (h + 80)) - 40 : -999;
+  const tick = Math.floor(t * 2);
+  const glitchOn = t > 0 && (tick * 2654435761) % 9 === 0;
+  const glitchY = (tick * 97) % Math.max(1, Math.round(h));
+  const shift = (y) => (glitchOn && Math.abs(y - glitchY) < 8 ? ((tick % 2) * 2 - 1) * 9 : 0);
+
+  ctx.fillStyle = c.onBlack;
+  for (let k = 0; k < 90; k++) {
+    const x = rng() * w;
+    const y = rng() * h;
+    const ph = rng() * TAU;
+    ctx.globalAlpha = 0.05 + 0.14 * (0.5 + 0.5 * Math.sin(t * 1.7 + ph));
+    px(ctx, x + shift(y), y, 0.6);
+  }
+
+  for (let i = 0; i < STAGE_N; i++) {
+    const depth = rng();
+    const hot = rng() < 0.04;
+    const swirl = (rng() - 0.5) * 0.9;
+    const delay = rng() * 0.35;
+    const ph = rng() * TAU;
+    const raw = t ? Math.min(1, Math.max(0, (t - st.start - delay) / 0.95)) : 1;
+    const e = easeInOut(raw);
+    const fx = st.from[i * 2];
+    const fy = st.from[i * 2 + 1];
+    const [tx, ty] = target[i];
+    const arc = Math.sin(raw * Math.PI) * swirl;
+    let x = fx + (tx - fx) * e - (ty - fy) * arc * 0.35;
+    let y = fy + (ty - fy) * e + (tx - fx) * arc * 0.35;
+    x += 0.008 * Math.sin(t * 1.3 + ph);
+    y += 0.008 * Math.cos(t * 1.1 + ph);
+    st.cur[i * 2] = x;
+    st.cur[i * 2 + 1] = y;
+    const sy = cy + y * R;
+    const sx = cx + x * R + shift(sy);
+    const lit = Math.max(0, 1 - Math.abs(sy - scanY) / 14);
+    ctx.globalAlpha = Math.min(1, 0.3 + 0.62 * depth + lit * 0.5);
+    ctx.fillStyle = hot ? c.accent : c.onBlack;
+    px(ctx, sx, sy, 0.75 + depth * 1.05 + lit * 0.35);
+  }
+  if (t) {
+    ctx.globalAlpha = 0.1;
+    ctx.fillStyle = c.onBlack;
+    ctx.fillRect(0, snap(scanY), w, 1 / dprNow);
+  }
+  ctx.globalAlpha = 1;
+}
+
+const KINDS = { wave, pill, orb, scatter, cover, dissolve, stage };
+const LIVE = new Set(['wave', 'pill', 'orb', 'scatter', 'dissolve', 'stage']);
+// Cuadros por segundo: 12 en general; las etapas, 24 en escritorio para que el viaje de las partículas se vea
+// fluido (en pantallas táctiles, 12, para cuidar la batería).
+const FRAME_MS = { stage: matchMedia('(pointer: coarse)').matches ? 83 : 41 };
 const GROWS = new Set(['wave', 'pill']);
 const mounted = new Set();
 let grewOnce = false;
@@ -201,12 +428,15 @@ function draw(entry, state = { progress: 1, t: 0 }) {
   const { w, h } = entry;
   if (!fn || w < 4 || h < 4) return;
   const dpr = Math.min(2, window.devicePixelRatio || 1);
-  if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
+  const bw = Math.round(w * dpr);
+  const bh = Math.round(h * dpr);
+  if (canvas.width !== bw || canvas.height !== bh) {
+    canvas.width = bw;
+    canvas.height = bh;
   }
+  dprNow = bw / w;
   const ctx = canvas.getContext('2d');
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.setTransform(dprNow, 0, 0, bh / h, 0, 0);
   ctx.clearRect(0, 0, w, h);
   const c = tokens();
   if (canvas.closest('.black')) c.off = c.offBlack;
@@ -220,7 +450,7 @@ function run(entry, grow) {
   const step = (now) => {
     if (entry.dead) return;
     entry.raf = requestAnimationFrame(step);
-    if (document.hidden || !entry.visible || now - lastFrame < 83) return;
+    if (document.hidden || !entry.visible || now - lastFrame < (FRAME_MS[entry.canvas.dataset.kind] || 83)) return;
     lastFrame = now;
     const elapsed = now - start;
     const progress = grow ? Math.min(1, elapsed / 520) : 1;

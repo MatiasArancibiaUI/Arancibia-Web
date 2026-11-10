@@ -4,7 +4,6 @@ export const personal = {
   // Proceso de trabajo como AI Product Designer, de la idea al deploy. Sin métricas: solo qué hago y qué entrego.
   proceso: {
     titulo: 'Mi proceso como AI Product Designer',
-    bajada: 'Siete etapas, de la idea al código publicado. Tocá una para ver el detalle.',
     pasos: [
       {
         id: 'idear',
@@ -85,7 +84,6 @@ export const personal = {
       { nombre: 'Vercel', nota: 'Deploy', herramienta: 'Vercel' },
     ],
     ciclo: 'Validación e iteración con el P.O.',
-    texto: 'Lideré la automatización y agentización del Design System de BYMA: skills personalizadas que conectan Figma, GitHub y Claude Code/Cursor para generar interfaces listas para desarrollo.',
   },
 
   aprendiendo: {
