@@ -3,7 +3,7 @@ import { personal } from '../../data/personal.js';
 import { icon } from '../icons.js';
 import { logo, hasLogo, companyLogo } from '../logos.js';
 import { esc, fmtYM, fmtRange, monthsBetween, yearsSince, isCurrent } from '../util.js';
-import { copyButton, cvButton, initTabs } from '../ui.js';
+import { cvButton, initTabs } from '../ui.js';
 
 export const title = 'Inicio';
 
@@ -34,8 +34,8 @@ const tag = (t) => `<li class="chip">${hasLogo(t) ? logo(t) : ''}${esc(t)}</li>`
 export function render() {
   const [actual] = profile.experiencia;
   const mesesActual = monthsBetween(actual.inicio, actual.fin);
-  // Las tres experiencias, con la actual primero.
-  const roles = profile.experiencia.map((e) => ({ ...e, meses: monthsBetween(e.inicio, e.fin) }));
+  // Experiencias anteriores: la actual vive en la tarjeta grande de la derecha.
+  const roles = profile.experiencia.filter((e) => e.fin).map((e) => ({ ...e, meses: monthsBetween(e.inicio, e.fin) }));
   const maxMeses = Math.max(...roles.map((e) => e.meses));
   const totalMeses = profile.experiencia.reduce((s, e) => s + monthsBetween(e.inicio, e.fin), 0);
   const anios = yearsSince(profile.inicioCarrera);
@@ -57,10 +57,6 @@ export function render() {
         <p class="name">${esc(profile.nombre)}</p>
         <p class="role">${esc(profile.rol)}</p>
         <p class="loc">${icon('mapPin')} ${esc(c.ubicacion)} · ES nativo · EN ${esc(ingles.nivel)}</p>
-        <dl class="spec spec-inline">
-          <div><dt>Email</dt><dd><span class="spec-val" translate="no">${esc(c.email)}</span>${copyButton(c.email, 'email', 'in-spec')}</dd></div>
-          <div><dt>Tel.</dt><dd><span class="spec-val" translate="no">${esc(c.telefono)}</span>${copyButton(c.telefono, 'teléfono', 'in-spec')}</dd></div>
-        </dl>
       </div>
 
       <section class="card tabcard" aria-label="Resumen">
@@ -77,13 +73,13 @@ export function render() {
               ${roles
                 .map(
                   (e, i) => `
-                <div class="pill-row${e.fin ? '' : ' is-now'}">
+                <div class="pill-row">
                   <div class="pill" aria-hidden="true"><canvas data-kind="pill" data-seed="${4 + i * 7}" data-fill="${(0.15 + 0.6 * (e.meses / maxMeses)).toFixed(2)}"></canvas></div>
                   <div class="pill-num">
                     <span class="dots" data-count="${e.meses}" aria-hidden="true">${e.meses}</span>
                     <span class="pill-meta">
                       <span class="unit" aria-hidden="true">meses</span>
-                      <span class="pill-label"><span class="sr-only">${e.meses} meses en </span>${companyLogo(e.empresa) || esc(e.empresa)}${e.fin ? '' : '<span class="now-tag"><span class="live-dot" aria-hidden="true"></span>actual</span>'}</span>
+                      <span class="pill-label"><span class="sr-only">${e.meses} meses en </span>${esc(e.empresa)}</span>
                     </span>
                   </div>
                 </div>`,
@@ -131,7 +127,7 @@ export function render() {
         <div class="card-head">
           <div>
             <h2 class="label" id="h-actual">Trabajo actual</h2>
-            <p class="sub">${esc(actual.empresa)} · desde ${fmtYM(actual.inicio)}</p>
+            <p class="sub now-co">${companyLogo(actual.empresa) || esc(actual.empresa)}<span>desde ${fmtYM(actual.inicio)}</span></p>
           </div>
           <div class="btn-row">
             <a class="icon-btn sm" href="#/experiencia" aria-label="Abrir experiencia" title="Abrir experiencia">${icon('arrowUpRight')}</a>

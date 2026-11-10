@@ -29,8 +29,6 @@
   row-gap: var(--gap);
 }
 .scrolls .view-head { padding: clamp(4px, 1cqh, 12px) 0 clamp(6px, 1.4cqh, 14px); }
-/* El contenido se desvanece al pasar por debajo del menú; la máscara solo usa transparencia. */
-.scrolls { mask-image: linear-gradient(to bottom, #000 calc(100% - var(--dock-h) - var(--dock-bottom) - 16px), transparent calc(100% - var(--dock-bottom))); }
 
 /* ========================================================================= */
 /* Inicio: perfil a la izquierda, trabajo a la derecha                        */
@@ -45,7 +43,7 @@
 /* Columna de perfil */
 .home-profile {
   display: grid;
-  grid-template-rows: minmax(clamp(200px, 36cqh, 340px), auto) minmax(0, 1fr);
+  grid-template-rows: minmax(clamp(170px, 31cqh, 300px), auto) minmax(0, 1fr);
   gap: var(--gap);
   min-height: 0;
 }
@@ -158,15 +156,15 @@
 @keyframes fade { from { opacity: 0; translate: 0 4px; } }
 .panel:focus-visible { outline-offset: -2px; }
 
-.pills { flex: 1; min-height: 0; display: grid; grid-auto-rows: minmax(0, 1fr); gap: clamp(6px, 1.3cqh, 14px); }
+.pills { flex: 1; min-height: 0; display: grid; grid-auto-rows: minmax(0, 1fr); gap: clamp(10px, 2cqh, 18px); }
 .pill-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(min-content, .62fr); align-items: center; gap: clamp(12px, 2cqw, 24px); min-height: 0; }
 .pill { position: relative; height: 100%; max-height: 82px; min-height: 30px; }
 .pill-num { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.pill-num .dots { font-size: clamp(22px, min(4.6cqh, 3.2cqw), 50px); }
-.pill-row.is-now .pill-num .dots { color: var(--accent-display); }
+.pill-num .dots { font-size: clamp(28px, min(5.6cqh, 3.6cqw), 54px); }
 .company-logo { display: block; width: auto; height: 16px; fill: currentColor; color: var(--ink); }
-.now-tag { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 10.5px; color: var(--ink); }
-.now-tag .live-dot { width: 6px; height: 6px; }
+/* Trabajo actual: el logo de BYMA reemplaza al nombre. */
+.now-co { display: flex; align-items: center; gap: 10px; }
+.now-co .company-logo { height: clamp(20px, 3.2cqh, 26px); }
 .pill-meta { display: grid; gap: 2px; min-width: 0; white-space: nowrap; }
 .pill-label { display: flex; align-items: center; gap: 8px; min-height: 16px; font-size: 12.5px; line-height: 1.25; color: var(--mute); }
 .trend { display: flex; align-items: center; gap: 8px; font-size: 12.5px; padding-bottom: 2px; }
@@ -658,7 +656,6 @@ a.pcard:focus-visible { border-radius: var(--r-card); }
   .feat { min-height: 260px; }
   .learn { min-height: 220px; }
 
-  .scrolls { mask-image: none; }
   .exp-grid, .about-grid, .proc-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: none; }
   .proc-grid > .card, .about-grid > .card { grid-area: auto; }
   .exp-side { grid-auto-rows: auto; }
@@ -678,7 +675,7 @@ a.pcard:focus-visible { border-radius: var(--r-card); }
   .topbar-left { flex: none; gap: 8px; }
   .topbar-right { flex: 1; }
   .topbar-tools { flex: 1; }
-  .brand-name, .clock, .search kbd, .cv-top { display: none; }
+  .brand-name, .search kbd, .cv-top { display: none; }
   .brand { flex: none; }
   /* El buscador cede ancho para que los botones redondos no se pisen. */
   .search { min-width: 0; }

@@ -131,24 +131,6 @@
 .brand-cursor { fill: var(--accent); animation: blink 1.1s steps(1, end) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
 
-.clock {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-pill);
-  background: var(--card);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: var(--mute);
-  white-space: nowrap;
-}
-.clock-dot { width: 6px; height: 6px; background: var(--accent); animation: blink 2s steps(1, end) infinite; }
-.clock-time { color: var(--ink); font-variant-numeric: tabular-nums; }
 
 .search {
   position: relative;
@@ -479,6 +461,6 @@ dialog[open] .dialog-card { animation: pop var(--t) var(--ease); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .brand-cursor, .clock-dot { animation: none; }
+  .brand-cursor { animation: none; }
   dialog[open] .dialog-card { animation: none; }
 }

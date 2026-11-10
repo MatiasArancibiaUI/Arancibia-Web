@@ -52,7 +52,7 @@ Cada vista exporta `title`, `render()` (devuelve HTML) y opcionalmente `mount(el
 
 - `index.html`: barra superior, `<main id="main">` donde se monta la vista, dock, diálogo de contacto, metas, Open Graph y manifest.
 - `css/tokens.css` (tokens claro/oscuro) · `css/base.css` (reset, marco `.app`, transición de vistas, scroll fino) · `css/components.css` (botones, tarjetas, chips, menús, dock, diálogo) · `css/views.css` (una sección por vista + degradación por altura + modo apilado).
-- `js/main.js` (router y arranque) · `js/dock.js` · `js/search.js` (paleta de búsqueda en memoria) · `js/dots.js` (canvas de píxeles: `wave`, `pill`, `ring`, `scatter`, `cover`, con movimiento lento) · `js/motion.js` (entrada escalonada, conteo de números, reloj de CABA) · `js/brand.js` (logo) · `js/logos.js` (logos de herramientas) · `js/theme.js` · `js/ui.js` (copiar, menús, pestañas, contacto, botón de CV) · `js/icons.js` (íconos de línea estilo Lucide) · `js/util.js` (fechas, escape, normalizar).
+- `js/main.js` (router y arranque) · `js/dock.js` · `js/search.js` (paleta de búsqueda en memoria) · `js/dots.js` (canvas de píxeles: `wave`, `pill`, `ring`, `scatter`, `cover`, con movimiento lento) · `js/motion.js` (entrada escalonada y conteo de números) · `js/brand.js` (logo) · `js/logos.js` (logos de herramientas) · `js/theme.js` · `js/ui.js` (copiar, menús, pestañas, contacto, botón de CV) · `js/icons.js` (íconos de línea estilo Lucide) · `js/util.js` (fechas, escape, normalizar).
 - **Datos (fuente de verdad, se editan acá y no en el HTML):** `data/profile.js` (CV: contacto, perfil, experiencia, educación, certificaciones, habilidades, idiomas, `cv`), `data/projects.js` (proyectos), `data/personal.js` (vista Proceso: pasos del proceso, "Aprendiendo ahora" y las tarjetas personales PENDIENTES). `profile.mercado` guarda los instrumentos financieros del CV (CEDEARs, ETFs, Fondos Comunes de Inversión).
 - `assets/`: `matias-bn.webp` (recorte B/N con alpha, 12 KB), `logo.svg` / `logo-dark.svg` (monograma), `icon.svg` (favicon), íconos PNG de la app, `og.jpg`. El CV va en `assets/cv-matias-arancibia.pdf`; al subirlo, poner esa ruta en `profile.cv` y los botones de descarga se activan solos.
 - `manifest.webmanifest`: instalable como app (sin service worker).
@@ -65,7 +65,8 @@ Cada vista exporta `title`, `render()` (devuelve HTML) y opcionalmente `mount(el
 - Sin scroll de página desde 1024×700. Las vistas largas usan scroll interno dentro del marco. Debajo de 760 px y 680 px de alto del marco se ocultan detalles secundarios antes de que algo se corte.
 - Con el marco de menos de 960 px de ancho o 600 px de alto, todo pasa a una columna con scroll interno en `.main` (celular y tablet vertical).
 - El menú reserva su espacio con `--reserve` en `.view` (alto del menú + margen); nada queda debajo. En el modo apilado el menú deja de flotar y es la última fila del marco (media query en `css/components.css`), así siempre se ve en celular.
-- Tarjeta de pestañas de la home: Experiencia muestra los tres roles (BYMA primero, con su logo monocromo de `companyLogo()` en `js/logos.js`). Herramientas y Educación ocultan los mosaicos de abajo para leerse completas, sin scroll.
+- Tarjeta de pestañas de la home: Experiencia muestra los roles anteriores (UADE y Dogma); el actual vive en la tarjeta grande "Trabajo actual", con el logo monocromo de BYMA (`companyLogo()` en `js/logos.js`). Herramientas y Educación ocultan los mosaicos de abajo para leerse completas, sin scroll.
+- La barra superior no lleva reloj ni chip de CABA. Las vistas con scroll no llevan desvanecido ni sombra bajo el menú.
 - La home entra completa, sin scroll: si no entra, primero se compacta y después se ocultan detalles secundarios por altura. Las demás vistas (Experiencia, Proyectos, Proceso, Sobre mí) scrollean dentro del marco (`.view-host.scrolls`, lo asigna `js/main.js`): el contenido toma su alto natural, con aire entre bloques, y no se esconde nada por altura. En el modo apilado (celular) scrollea `.main`.
 - Meses y años se calculan en `js/util.js` (`monthsBetween` cuenta el mes de inicio y el de fin). Nunca escribir duraciones a mano.
 - Las consultas de contenedor no aplican a `.app` mismo: para cambiar variables por tamaño se usa `.app > *`.
@@ -124,7 +125,7 @@ Discreto y siempre anulado con `prefers-reduced-motion`:
 - Números de píxeles que cuentan desde cero (`data-count`).
 - Canvas a 12 cuadros por segundo: la onda crece una vez y después respira un píxel, una columna recorre las píldoras, el último punto del gráfico de dispersión late, el anillo gira muy lento.
 - Franja de logos (`.logo-strip`) en desplazamiento lento; se pausa al pasar el mouse.
-- El cursor del logo, el punto del reloj y "Actual" parpadean en pasos.
+- El cursor del logo y "Actual" parpadean en pasos.
 - Hover: tarjetas y botones suben 2px y toman el naranja.
 
 ### Componentes existentes (reutilizarlos, no inventar variantes)
@@ -145,7 +146,7 @@ Nombres actuales en el código: `.card`, `.card.black`, `.chip`/`.chips`, `.labe
 
 ## 4. Layout y responsive
 
-- Escritorio: tablero apaisado de dos columnas, 43 / 57 (izquierda: perfil con foto, nombre, rol, ubicación e idiomas en una línea, ficha compacta de email y teléfono, pestañas y accesos; derecha: subtítulo numerado, titular, franja de stack, trabajo actual, aprendiendo y proyecto destacado).
+- Escritorio: tablero apaisado de dos columnas, 43 / 57 (izquierda: perfil con foto, nombre, rol, ubicación e idiomas en una línea, pestañas y accesos (email y teléfono viven en Sobre mí y en el diálogo "Hablemos"); derecha: subtítulo numerado, titular, franja de stack, trabajo actual, aprendiendo y proyecto destacado).
 - Experiencia: debajo del título, la línea de tiempo en una tarjeta a todo el ancho (un píxel por mes desde 2023, etiquetas de cada rol arriba y años abajo; los meses se encienden en orden al entrar en pantalla). Debajo, BYMA a la izquierda con sus puntos en dos columnas; UADE y Dogma a la derecha, con todos sus puntos visibles.
 - Proceso: el proceso es una columna alta (tarjeta negra) con los cinco pasos en vertical y sus herramientas como etiquetas; al lado, IA y mercado de capitales arriba, "Aprendiendo ahora" en el medio y habilidades abajo.
 - Sobre mí: cuatro columnas. Datos de contacto y bio ocupan columnas completas; experiencia, idiomas, formación y certificaciones son tarjetas chicas.

@@ -29,16 +29,3 @@ export function countUp(root) {
     requestAnimationFrame(step);
   });
 }
-
-// Hora local de Buenos Aires en la barra superior.
-export function initClock(node) {
-  if (!node) return;
-  const fmt = new Intl.DateTimeFormat('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Argentina/Buenos_Aires' });
-  const tick = () => {
-    const time = fmt.format(new Date());
-    node.querySelector('.clock-time').textContent = time;
-    node.setAttribute('datetime', time);
-  };
-  tick();
-  setInterval(tick, 20000);
-}

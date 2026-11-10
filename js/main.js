@@ -10,7 +10,7 @@ import { initDock, setDockActive } from './dock.js';
 import { initSearch, focusSearch, closeSearch } from './search.js';
 import { initUI, cvButton } from './ui.js';
 import { prefersReducedMotion } from './util.js';
-import { rise, countUp, initClock } from './motion.js';
+import { rise, countUp } from './motion.js';
 import { brandMark } from './brand.js';
 
 const routes = [
@@ -94,7 +94,6 @@ function onKey(e) {
 
 document.getElementById('cv-slot').outerHTML = cvButton('cv-top');
 document.getElementById('brand-slot').outerHTML = brandMark();
-initClock(document.getElementById('clock'));
 document.querySelector('.skip').addEventListener('click', (e) => {
   e.preventDefault();
   main.focus();
