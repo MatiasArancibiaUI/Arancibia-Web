@@ -149,40 +149,38 @@ export function mount(el) {
   );
   steps.forEach((s) => io.observe(s));
 
-  // Carrusel: los puntos llevan a una etapa; con el foco en el carrusel, las flechas pasan de a una.
-  // Un gesto avanza o retrocede una sola card: si el dedo arrastró más de una, al soltar vuelve a la vecina.
+  // Carrusel: los puntos llevan a una etapa. Un gesto avanza o retrocede una sola card: el punto de partida
+  // se mide al apoyar el dedo y, si al soltar el carrusel quedó a más de una card, vuelve a la vecina.
+  // La corrección solo actúa después de un toque (nunca con los puntos), para que no se mueva solo.
   let gestureFrom = 0;
+  let touched = false;
   let settle = 0;
+  const pitch = () => steps[1].offsetLeft - steps[0].offsetLeft;
   const goTo = (i) => {
     const k = Math.max(0, Math.min(steps.length - 1, i));
-    gestureFrom = k;
-    track.scrollTo({ left: steps[k].offsetLeft - track.offsetLeft - parseFloat(getComputedStyle(track).scrollPaddingLeft || 0), behavior: reduced ? 'auto' : 'smooth' });
+    track.scrollTo({ left: k * pitch(), behavior: reduced ? 'auto' : 'smooth' });
   };
   const onDot = (e) => {
     const b = e.target.closest('[data-go]');
     if (b) goTo(Number(b.dataset.go));
   };
-  const onKey = (e) => {
-    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-    e.preventDefault();
-    goTo(active + (e.key === 'ArrowRight' ? 1 : -1));
-  };
   const onTouch = () => {
-    gestureFrom = active;
+    clearTimeout(settle);
+    gestureFrom = Math.round(track.scrollLeft / pitch());
+    touched = true;
   };
   const onTrackScroll = () => {
+    if (!touched) return;
     clearTimeout(settle);
     settle = setTimeout(() => {
-      const pitch = steps[1].offsetLeft - steps[0].offsetLeft;
-      const near = Math.round(track.scrollLeft / pitch);
+      touched = false;
+      const near = Math.round(track.scrollLeft / pitch());
       if (Math.abs(near - gestureFrom) > 1) goTo(gestureFrom + Math.sign(near - gestureFrom));
-    }, 90);
+    }, 120);
   };
   const dotsBox = el.querySelector('.story-dots');
   if (stacked) {
-    track.tabIndex = 0;
     dotsBox.addEventListener('click', onDot);
-    track.addEventListener('keydown', onKey);
     track.addEventListener('touchstart', onTouch, { passive: true });
     track.addEventListener('scroll', onTrackScroll, { passive: true });
   }
@@ -209,7 +207,6 @@ export function mount(el) {
     io2.disconnect();
     clearTimeout(settle);
     dotsBox.removeEventListener('click', onDot);
-    track.removeEventListener('keydown', onKey);
     track.removeEventListener('touchstart', onTouch);
     track.removeEventListener('scroll', onTrackScroll);
     document.removeEventListener('proceso:etapa', onPedida);

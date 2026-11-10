@@ -755,8 +755,12 @@
      (scroll-snap-stop). Asoma el borde de la siguiente para que se note que se desliza. */
   .story-steps {
     display: flex;
-    align-items: start;
+    align-items: stretch;
     gap: 10px;
+    /* Todas las cards miden lo mismo y entran en la pantalla con el menú y los puntos (la imagen absorbe
+       la diferencia); si el texto no entra, la card crece en vez de cortarlo. */
+    min-height: calc(100vh - 176px);
+    min-height: calc(100svh - 176px);
     margin-inline: calc(-1 * var(--pad-x));
     padding: 2px var(--pad-x) 4px;
     overflow-x: auto;
@@ -766,12 +770,13 @@
     scrollbar-width: none;
   }
   .story-steps::-webkit-scrollbar { display: none; }
-  .story-steps:focus-visible { outline-offset: -2px; }
   .sstep {
+    display: flex;
+    flex-direction: column;
     flex: 0 0 calc(100% - 26px);
-    align-content: start;
+    gap: 10px;
     min-height: 0;
-    padding: 12px 12px 22px;
+    padding: 10px 10px 16px;
     border: 1px solid var(--line);
     border-radius: var(--r-card);
     background: var(--card);
@@ -787,7 +792,14 @@
   .story-dots [aria-current] span { width: 26px; background: var(--accent); }
   .sstep > :not(.sstep-visual) { margin-inline: 6px; }
   .sstep.is-on .sstep-list li { animation: none; }
-  .sstep-visual { position: relative; display: block; height: clamp(200px, 54cqw, 300px); margin-bottom: 6px; padding: 0; overflow: hidden; border-radius: 14px; }
+  .sstep-visual { position: relative; display: block; flex: 1 1 110px; min-height: 104px; padding: 0; overflow: hidden; border-radius: 14px; }
+  .sstep-k { font-size: 11px; }
+  .sstep-k .dots { font-size: 18px; }
+  .sstep-x { font-size: 15px; line-height: 1.42; }
+  .sstep-list { gap: 4px; }
+  .sstep-list li { font-size: 14px; }
+  .sstep-out { gap: 2px; padding: 10px 12px; }
+  .sstep-out strong { font-size: 16px; }
   .sstep-visual canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   .sv-n { font-size: clamp(48px, 14cqw, 80px); }
   .sys { padding: 0 34px 0 0; }
@@ -867,7 +879,7 @@
   .label, .eyebrow, .strip-label, .unit, .facts dt, .spec dt, .ring-unit, .tl-range, .tl-role span, .tl-years span,
   .row-d, .er-d, .pcard-meta, .sys-s, .lr-s { font-size: 12px; }
   .sub, .row-s, .er-s, .er-note, .chip, .chips.sm .chip, .tool-chips .chip, .palette-hint, .feat-text { font-size: 14px; }
-  .sstep-t { font-size: clamp(38px, 12cqw, 56px); }
+  .sstep-t { font-size: clamp(30px, 9.5cqw, 40px); line-height: .95; }
 }
 
 @media (prefers-reduced-motion: reduce) {
