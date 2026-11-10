@@ -17,10 +17,14 @@ const seedOf = (canvas) => {
   return /^\d+$/.test(s) ? Number(s) : hashString(s);
 };
 
+// Los colores se leen una sola vez y se vuelven a leer al cambiar el tema: leerlos en cada cuadro fuerza un recálculo de estilos.
+let tokenCache = null;
 const tokens = () => {
+  if (tokenCache) return { ...tokenCache };
   const cs = getComputedStyle(document.documentElement);
   const get = (n) => cs.getPropertyValue(n).trim();
-  return { accent: get('--accent'), off: get('--dot-off'), offBlack: get('--dot-off-black'), soft: get('--accent-soft') };
+  tokenCache = { accent: get('--accent'), off: get('--dot-off'), offBlack: get('--dot-off-black'), soft: get('--accent-soft') };
+  return { ...tokenCache };
 };
 
 const px = (ctx, x, y, r) => ctx.fillRect(x - r, y - r, r * 2, r * 2);
@@ -168,9 +172,13 @@ let grewOnce = false;
 function draw(entry, state = { progress: 1, t: 0 }) {
   const { canvas } = entry;
   const fn = KINDS[canvas.dataset.kind];
-  const rect = canvas.getBoundingClientRect();
-  const w = Math.round(rect.width);
-  const h = Math.round(rect.height);
+  // El tamaño lo informa el ResizeObserver; medirlo en cada cuadro forzaría un recálculo de layout.
+  if (!entry.w) {
+    const rect = canvas.getBoundingClientRect();
+    entry.w = Math.round(rect.width);
+    entry.h = Math.round(rect.height);
+  }
+  const { w, h } = entry;
   if (!fn || w < 4 || h < 4) return;
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
@@ -192,7 +200,7 @@ function run(entry, grow) {
   const step = (now) => {
     if (entry.dead) return;
     entry.raf = requestAnimationFrame(step);
-    if (document.hidden || now - lastFrame < 83) return;
+    if (document.hidden || !entry.visible || now - lastFrame < 83) return;
     lastFrame = now;
     const elapsed = now - start;
     const progress = grow ? Math.min(1, elapsed / 520) : 1;
@@ -202,12 +210,22 @@ function run(entry, grow) {
 }
 
 export function mountDots(root) {
-  const entries = [...root.querySelectorAll('canvas[data-kind]')].map((canvas) => ({ canvas, raf: 0, dead: false }));
+  const entries = [...root.querySelectorAll('canvas[data-kind]')].map((canvas) => ({ canvas, raf: 0, dead: false, visible: true, w: 0, h: 0 }));
   const reduced = prefersReducedMotion();
   const ro = new ResizeObserver((items) => {
     for (const it of items) {
       const entry = entries.find((e) => e.canvas === it.target);
-      if (entry && !entry.raf) draw(entry);
+      if (!entry) continue;
+      entry.w = Math.round(it.contentRect.width);
+      entry.h = Math.round(it.contentRect.height);
+      if (!entry.raf) draw(entry);
+    }
+  });
+  // Un canvas fuera de pantalla (por ejemplo, abajo del scroll en celular) no se anima.
+  const io = new IntersectionObserver((items) => {
+    for (const it of items) {
+      const entry = entries.find((e) => e.canvas === it.target);
+      if (entry) entry.visible = it.isIntersecting;
     }
   });
   for (const entry of entries) {
@@ -216,10 +234,12 @@ export function mountDots(root) {
     if (!reduced && LIVE.has(kind)) run(entry, !grewOnce && GROWS.has(kind));
     else draw(entry);
     ro.observe(entry.canvas);
+    io.observe(entry.canvas);
   }
   if (entries.some((e) => GROWS.has(e.canvas.dataset.kind))) grewOnce = true;
   return () => {
     ro.disconnect();
+    io.disconnect();
     for (const entry of entries) {
       entry.dead = true;
       cancelAnimationFrame(entry.raf);
@@ -229,6 +249,7 @@ export function mountDots(root) {
 }
 
 export function redrawAll() {
+  tokenCache = null;
   for (const entry of mounted) if (!entry.raf) draw(entry);
 }
 
