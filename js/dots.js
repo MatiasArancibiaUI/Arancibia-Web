@@ -375,12 +375,30 @@ function stage(ctx, w, h, rng, c, { t }, canvas) {
     px(ctx, x + shift(y), y, 0.6);
   }
 
+  // Volumen: la figura tiene una capa de frente y otra de fondo (y algunas partículas en el medio), se
+  // balancea despacio y, en escritorio, gira hacia el cursor (canvas.__tilt lo escribe js/views/proceso.js).
+  const tilt = canvas.__tilt || (canvas.__tilt = { x: 0, y: 0, tx: 0, ty: 0 });
+  tilt.x += (tilt.tx - tilt.x) * 0.14;
+  tilt.y += (tilt.ty - tilt.y) * 0.14;
+  const yaw = 0.24 * Math.sin(t * 0.45) + tilt.x * 0.32;
+  const pitch = 0.08 * Math.sin(t * 0.33) - tilt.y * 0.26;
+  const cyw = Math.cos(yaw);
+  const syw = Math.sin(yaw);
+  const cp = Math.cos(pitch);
+  const sp = Math.sin(pitch);
+  const CAM = 2.6;
+  // En canvas chicos (las cards del carrusel en celular) se dibuja una de cada dos partículas: a ese tamaño
+  // la figura se ve igual y cuesta la mitad.
+  const stride = w * h < 160000 ? 2 : 1;
+
   for (let i = 0; i < STAGE_N; i++) {
-    const depth = rng();
+    const layer = rng();
+    const z0 = layer < 0.5 ? 0.08 : layer < 0.86 ? -0.08 : (layer - 0.93) * 2;
     const hot = rng() < 0.04;
     const swirl = (rng() - 0.5) * 0.9;
     const delay = rng() * 0.35;
     const ph = rng() * TAU;
+    if (i % stride) continue;
     const raw = t ? Math.min(1, Math.max(0, (t - st.start - delay) / 0.95)) : 1;
     const e = easeInOut(raw);
     const fx = st.from[i * 2];
@@ -393,12 +411,18 @@ function stage(ctx, w, h, rng, c, { t }, canvas) {
     y += 0.008 * Math.cos(t * 1.1 + ph);
     st.cur[i * 2] = x;
     st.cur[i * 2 + 1] = y;
-    const sy = cy + y * R;
-    const sx = cx + x * R + shift(sy);
+    const x1 = x * cyw + z0 * syw;
+    const z1 = -x * syw + z0 * cyw;
+    const y2 = y * cp - z1 * sp;
+    const z2 = y * sp + z1 * cp;
+    const persp = CAM / (CAM - z2);
+    const sy = cy + y2 * R * persp;
+    const sx = cx + x1 * R * persp + shift(sy);
+    const depth = Math.min(1, Math.max(0, 0.5 + z2 * 3));
     const lit = Math.max(0, 1 - Math.abs(sy - scanY) / 14);
-    ctx.globalAlpha = Math.min(1, 0.3 + 0.62 * depth + lit * 0.5);
+    ctx.globalAlpha = Math.min(1, 0.22 + 0.7 * depth + lit * 0.5);
     ctx.fillStyle = hot ? c.accent : c.onBlack;
-    px(ctx, sx, sy, 0.75 + depth * 1.05 + lit * 0.35);
+    px(ctx, sx, sy, (0.7 + depth * 1.1) * persp + lit * 0.35);
   }
   if (t) {
     ctx.globalAlpha = 0.1;
@@ -408,8 +432,28 @@ function stage(ctx, w, h, rng, c, { t }, canvas) {
   ctx.globalAlpha = 1;
 }
 
-const KINDS = { wave, pill, orb, scatter, cover, dissolve, stage };
-const LIVE = new Set(['wave', 'pill', 'orb', 'scatter', 'dissolve', 'stage']);
+// Fondo de la foto de la home: polvo que titila, alguna chispa naranja y una línea de escaneo.
+function field(ctx, w, h, rng, c, { t }) {
+  for (let k = 0; k < 80; k++) {
+    const x = rng() * w;
+    const y = rng() * h;
+    const ph = rng() * 6.28;
+    const hot = rng() < 0.06;
+    ctx.globalAlpha = 0.06 + 0.18 * (0.5 + 0.5 * Math.sin(t * 1.5 + ph));
+    ctx.fillStyle = hot ? c.accent : c.onBlack;
+    px(ctx, x, y, hot ? 0.9 : 0.6);
+  }
+  if (t) {
+    const scanY = ((t * 40) % (h + 60)) - 30;
+    ctx.globalAlpha = 0.08;
+    ctx.fillStyle = c.onBlack;
+    ctx.fillRect(0, snap(scanY), w, 1 / dprNow);
+  }
+  ctx.globalAlpha = 1;
+}
+
+const KINDS = { wave, pill, orb, scatter, cover, dissolve, stage, field };
+const LIVE = new Set(['wave', 'pill', 'orb', 'scatter', 'dissolve', 'stage', 'field']);
 // Cuadros por segundo: 12 en general; las etapas, 24 en escritorio para que el viaje de las partículas se vea
 // fluido (en pantallas táctiles, 12, para cuidar la batería).
 const FRAME_MS = { stage: matchMedia('(pointer: coarse)').matches ? 83 : 41 };

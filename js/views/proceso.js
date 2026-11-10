@@ -185,6 +185,25 @@ export function mount(el) {
     track.addEventListener('scroll', onTrackScroll, { passive: true });
   }
 
+  // Escritorio: la figura gira suavemente hacia el cursor y vuelve al centro cuando sale.
+  const tiltOf = () => canvas.__tilt || (canvas.__tilt = { x: 0, y: 0, tx: 0, ty: 0 });
+  const onMove = (e) => {
+    const r = visual.getBoundingClientRect();
+    const tl = tiltOf();
+    tl.tx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+    tl.ty = ((e.clientY - r.top) / r.height - 0.5) * 2;
+  };
+  const onLeave = () => {
+    const tl = tiltOf();
+    tl.tx = 0;
+    tl.ty = 0;
+  };
+  const hoverable = !stacked && !reduced && matchMedia('(hover: hover)').matches;
+  if (hoverable) {
+    visual.addEventListener('pointermove', onMove);
+    visual.addEventListener('pointerleave', onLeave);
+  }
+
   // El flujo con IA anima en bucle solo con el bloque en pantalla.
   const io2 = new IntersectionObserver((items) => items.forEach((it) => it.target.classList.toggle('is-in', it.isIntersecting)), { threshold: 0.2 });
   el.querySelectorAll('.sysmap').forEach((n) => io2.observe(n));
@@ -206,6 +225,8 @@ export function mount(el) {
     io.disconnect();
     io2.disconnect();
     clearTimeout(settle);
+    visual.removeEventListener('pointermove', onMove);
+    visual.removeEventListener('pointerleave', onLeave);
     dotsBox.removeEventListener('click', onDot);
     track.removeEventListener('touchstart', onTouch);
     track.removeEventListener('scroll', onTrackScroll);

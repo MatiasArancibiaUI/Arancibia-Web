@@ -55,6 +55,7 @@ export function render() {
   <section class="view home">
     <div class="home-profile">
       <div class="hero">
+        <div class="hero-bg" aria-hidden="true"><canvas data-kind="field" data-seed="9"></canvas></div>
         <img class="photo" src="assets/matias-bn.webp" alt="Retrato de Matías Arancibia en blanco y negro, con saco y corbata" width="800" height="728" fetchpriority="high">
         <div class="nameplate">
           <canvas class="np-pixels" data-kind="dissolve" data-seed="11" aria-hidden="true"></canvas>
