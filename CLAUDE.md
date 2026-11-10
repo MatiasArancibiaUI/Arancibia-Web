@@ -27,7 +27,7 @@ Sitio web personal de Matías Ezequiel Arancibia, AI Product Designer (UI/UX, De
 
 El sitio muestra cuatro cosas: proyectos, herramientas que usa, experiencia y medios de contacto. Es un portfolio que tiene que transmitir criterio de diseño y manejo de automatización con IA, así que la calidad visual y de código es parte del mensaje.
 
-Referencia visual: un tablero apaisado tipo dashboard (composición "Rythea") con la estética técnica de "Sigil": acento naranja, píxeles cuadrados, etiquetas en monoespaciada con un cuadrito naranja, esquinas naranjas en las tarjetas principales, una palabra del titular en tipografía de píxeles, una tarjeta negra de acento, la foto recortada en blanco y negro asomando sobre las tarjetas y un dock semicircular. El perfil (foto, nombre, pestañas) va a la izquierda y el trabajo (titular, stack, tarjetas) a la derecha. No cambiar esta dirección sin que yo lo pida.
+Referencia visual: un tablero apaisado tipo dashboard (composición "Rythea") con la estética técnica de "Sigil": acento naranja, píxeles cuadrados, etiquetas en monoespaciada con un cuadrito naranja, esquinas naranjas en las tarjetas principales, una palabra del titular en tipografía de píxeles, una tarjeta negra de acento, la foto recortada en blanco y negro asomando sobre una franja naranja con el nombre y un dock semicircular. El perfil (foto, nombre, pestañas) va a la izquierda y el trabajo (titular, stack, tarjetas) a la derecha. No cambiar esta dirección sin que yo lo pida.
 
 ## 2. Stack y estructura
 
@@ -52,7 +52,7 @@ Cada vista exporta `title`, `render()` (devuelve HTML) y opcionalmente `mount(el
 
 - `index.html`: barra superior, `<main id="main">` donde se monta la vista, dock, diálogo de contacto, metas, Open Graph y manifest.
 - `css/tokens.css` (tokens claro/oscuro) · `css/base.css` (reset, marco `.app`, transición de vistas, scroll fino) · `css/components.css` (botones, tarjetas, chips, menús, dock, diálogo) · `css/views.css` (una sección por vista + degradación por altura + modo apilado).
-- `js/main.js` (router y arranque) · `js/dock.js` · `js/search.js` (paleta de búsqueda en memoria) · `js/dots.js` (canvas de píxeles: `wave`, `pill`, `ring`, `scatter`, `cover`, con movimiento lento) · `js/motion.js` (entrada escalonada y conteo de números) · `js/brand.js` (logo) · `js/logos.js` (logos de herramientas) · `js/theme.js` · `js/ui.js` (copiar, menús, pestañas, contacto, botón de CV) · `js/icons.js` (íconos de línea estilo Lucide) · `js/util.js` (fechas, escape, normalizar).
+- `js/main.js` (router y arranque) · `js/dock.js` · `js/search.js` (paleta de búsqueda en memoria) · `js/dots.js` (canvas de píxeles: `wave`, `pill`, `ring`, `scatter`, `cover`, `dissolve`, con movimiento lento) · `js/motion.js` (entrada escalonada y conteo de números) · `js/brand.js` (logo) · `js/logos.js` (logos de herramientas) · `js/theme.js` · `js/ui.js` (copiar, menús, pestañas, contacto, botón de CV) · `js/icons.js` (íconos de línea estilo Lucide) · `js/util.js` (fechas, escape, normalizar).
 - **Datos (fuente de verdad, se editan acá y no en el HTML):** `data/profile.js` (CV: contacto, perfil, experiencia, educación, certificaciones, habilidades, idiomas, `cv`), `data/projects.js` (proyectos), `data/personal.js` (vista Proceso: las siete etapas con lo que hago, el entregable y las herramientas; el flujo con IA (`flujoIA`); "Aprendiendo ahora" y las tarjetas personales PENDIENTES). La búsqueda indexa cada etapa y abre Proceso en esa etapa (`verEtapa()`).
 - `assets/`: `matias-bn.webp` (recorte B/N con alfa, 800 × 728, 21 KB, sacado de la foto original de 800 × 800), `logo.svg` / `logo-dark.svg` (monograma), `icon.svg` (favicon), íconos PNG de la app, `og.jpg`. El CV va en `assets/cv-matias-arancibia.pdf`; al subirlo, poner esa ruta en `profile.cv` y los botones de descarga se activan solos.
 - `manifest.webmanifest`: instalable como app (sin service worker).
@@ -62,7 +62,7 @@ Cada vista exporta `title`, `render()` (devuelve HTML) y opcionalmente `mount(el
 ### Reglas de pantalla
 
 - El marco `.app` mide `min(100vw - 32px, 1440px)` × `min(100dvh - 32px, 920px)` y es contenedor de tamaño (`container: app / size`): las medidas usan `cqh`/`cqw` con `clamp()`.
-- Sin scroll de página desde 1024×700. Las vistas largas usan scroll interno dentro del marco. Debajo de 760 px y 680 px de alto del marco se ocultan detalles secundarios antes de que algo se corte.
+- Sin scroll de página desde 1024×700. Las vistas largas usan scroll interno dentro del marco. Debajo de 760 px y 680 px de alto del marco se ocultan detalles secundarios antes de que algo se corte. En la home, por debajo de 760 px de alto, el tile "3+ años" cede y "Hablemos" ocupa la fila.
 - Con el marco de menos de 960 px de ancho o 600 px de alto (ventana de menos de 992 × 632), todo pasa a una columna y **scrollea la página entera**, no un contenedor interno: el scroll anidado en un marco de alto fijo falla en navegadores móviles. En ese modo `.app` es contenedor solo de ancho (`inline-size`) y los cortes son media queries (`css/base.css`, `css/components.css` y el bloque apilado de `css/views.css` usan los mismos valores). Las tarjetas de la home no llevan el `flex` con base 0 del escritorio, porque en columna se aplastan.
 - El menú reserva su espacio con `--reserve` en `.view` (alto del menú + margen); nada queda debajo. En el modo apilado el menú es la última fila del marco con `position: sticky` abajo, así siempre se ve en celular mientras se scrollea. Al cambiar de vista se vuelve arriba.
 - Pestaña Herramientas de la home: solo programas, como etiquetas con logo (sin conceptos, lenguajes ni metodologías; la lista de exclusiones es `NO_PROGRAMAS` en `js/views/home.js`).
@@ -127,7 +127,8 @@ Discreto y siempre anulado con `prefers-reduced-motion`:
 - Números de píxeles que cuentan desde cero (`data-count`).
 - Canvas a 12 cuadros por segundo: la onda crece una vez y después respira un píxel, una columna recorre las píldoras, el último punto del gráfico de dispersión late, el anillo gira muy lento.
 - Franja de logos (`.logo-strip`) en desplazamiento lento; se pausa al pasar el mouse.
-- El cursor del logo y "Actual" parpadean en pasos.
+- El cursor del logo, el píxel al final del nombre en la franja y "Actual" parpadean en pasos.
+- El borde de píxeles de la franja del nombre titila despacio (canvas `dissolve`).
 - Presionado (`:active`, al final de `css/views.css`): todo control baja 1px, se achica al 97 % y se oscurece (`brightness(.92)`), como un botón físico; las tarjetas de proyecto, al 98,5 %. Va al final para ganarle al hover.
 - Hover: tarjetas y botones suben 2px y toman el naranja. Siempre dentro de `@media (hover: hover)`: en pantallas táctiles el hover queda aplicado después de tocar.
 - Proceso (pedido explícito de más movimiento en esa vista): el segmento de la etapa activa se llena con el tiempo, la etapa activa tiene un píxel que parpadea, las tareas de la consola se escriben y se marcan; en el flujo con IA cada nodo se enciende en orden, un píxel pasa al siguiente y otro vuelve por el ciclo del P.O. Todo en pasos (`steps()`), solo con el bloque en pantalla (clase `.is-in` por `IntersectionObserver`) y anulado con movimiento reducido.
@@ -141,16 +142,17 @@ Discreto y siempre anulado con `prefers-reduced-motion`:
 - `.logo-strip`: franja "Stack" con los logos de las herramientas (`js/logos.js`, Simple Icons CC0). Cursor, Pendo y los productos de Microsoft no tienen logo libre y se muestran solo con su nombre. `toolChip(nombre)` arma una etiqueta con logo.
 - `canvas[data-kind="wave"]` y `canvas[data-kind="ring"]`: ondas y anillo de píxeles naranjas, dibujados con `data-seed` fijo para que sean estables. Leen los colores de los tokens y se redibujan al cambiar el tema o el tamaño.
 - `.tabcard` con `role="tablist"`: pestañas de Experiencia, Herramientas y Educación.
-- `.tile`: acceso a una red (LinkedIn, Behance). `.tile.accent` es el llamado "Hablemos": fondo `--accent`, texto blanco e íconos en naranja claro; es el único bloque naranja.
+- `.tile`: acceso a una red (LinkedIn, Behance). `.tile.accent` es el llamado "Hablemos": fondo `--accent`, texto blanco e íconos en naranja claro.
+- `.nameplate`: franja naranja debajo de la foto de la home con nombre, rol y ubicación en blanco; arriba se disuelve en píxeles (`canvas[data-kind="dissolve"]`) y el nombre termina en un píxel que parpadea. Junto con "Hablemos", son los únicos bloques naranjas.
 - `.dock`: navegación flotante inferior con la sección activa marcada.
 
 Si falta un componente, primero intentá resolverlo con los existentes. Si hay que crear uno nuevo, tiene que usar los tokens, los radios y la tipografía de arriba.
 
-Nombres actuales en el código: `.card`, `.card.black`, `.chip`/`.chips`, `.label`, `.dots`, `.icon-btn` (`.sm`, `.xs`), `.btn`, `.tabcard` + `[role=tablist]`, `.tile` (`.gray`, `.accent`: el tile "Hablemos" en naranja con texto blanco), `.dock`, `.menu`, `.meter`, `.stack` (capas apiladas). Canvas: `canvas[data-kind="wave|pill|ring|scatter|cover"][data-seed]`; dentro de una `.black` usan `--dot-off-black` para los puntos apagados. En tema oscuro, `--black` es un gris elevado (`#323238`), no claro ni negro.
+Nombres actuales en el código: `.card`, `.card.black`, `.chip`/`.chips`, `.label`, `.dots`, `.icon-btn` (`.sm`, `.xs`), `.btn`, `.tabcard` + `[role=tablist]`, `.tile` (`.gray`, `.accent`: el tile "Hablemos" en naranja con texto blanco), `.dock`, `.menu`, `.meter`, `.stack` (capas apiladas). Canvas: `canvas[data-kind="wave|pill|ring|scatter|cover|dissolve"][data-seed]`; dentro de una `.black` usan `--dot-off-black` para los puntos apagados. En tema oscuro, `--black` es un gris elevado (`#323238`), no claro ni negro.
 
 ## 4. Layout y responsive
 
-- Escritorio: tablero apaisado de dos columnas, 43 / 57 (izquierda: perfil con foto, nombre, rol y ubicación (sin idiomas), pestañas y accesos (email y teléfono viven en Sobre mí y en el diálogo "Hablemos"); derecha: titular sin subtítulo numerado, franja de stack, trabajo actual, aprendiendo y proyecto destacado). En columna (celular) el orden es: nombre, rol y ubicación como bloque compacto (24px), después el titular como único título dominante y después la foto.
+- Escritorio: tablero apaisado de dos columnas, 43 / 57 (izquierda: la foto centrada con la franja naranja `.nameplate` debajo (nombre, rol y ubicación, sin idiomas), pestañas y accesos (email y teléfono viven en Sobre mí y en el diálogo "Hablemos"); derecha: titular sin subtítulo numerado, franja de stack, trabajo actual, aprendiendo y proyecto destacado). En columna (celular) el orden es: el titular como único título dominante, la foto con la franja y las pestañas.
 - Experiencia: debajo del título, la línea de tiempo en una tarjeta a todo el ancho (un píxel por mes desde 2023, etiquetas de cada rol arriba y años abajo; los meses se encienden en orden al entrar en pantalla). Debajo, BYMA a la izquierda con sus puntos en dos columnas; UADE y Dogma a la derecha, con todos sus puntos visibles.
 - Proceso: arriba, la tarjeta del recorrido a todo el ancho: siete etapas (Idear, Investigar, Diseñar, Validar con P.O., Documentar, Generar con IA, Desplegar) como botones con borde (pestañas con flechas, Inicio y Fin); la activa va en negro y las recorridas llevan tilde naranja. Debajo, una barra segmentada marca el avance y el tiempo, y el detalle de la etapa muestra número, título, texto, herramientas y una consola con las tareas y el entregable. Se recorre sola cada 6 s (botón Pausar/Reproducir; se frena al tocar una etapa, se pausa con el mouse encima y no arranca sola con movimiento reducido). Debajo, la tarjeta negra "Flujo con IA": Figma, componente.md, skills propias, Claude Code, GitHub y Vercel conectados, con la vuelta de validación e iteración con el P.O.; en celular va en vertical. Herramientas, formación, habilidades y mercado de capitales no van en esta vista.
 - Sobre mí: cuatro columnas. Datos de contacto y bio ocupan columnas completas; experiencia, idiomas, formación y certificaciones son tarjetas chicas.
@@ -159,7 +161,7 @@ Nombres actuales en el código: `.card`, `.card.black`, `.chip`/`.chips`, `.labe
 - Nunca scroll horizontal en la página. Solo tablas o bloques de código pueden desbordar, dentro de su propio contenedor con `overflow-x: auto`.
 - Los hijos de grid o flex que contienen texto llevan `min-width: 0`.
 - Probar siempre a 1440, 1024, 768 y 390px de ancho.
-- Celular (marco de menos de 680 px): los textos chicos suben a 12px (etiquetas y metadatos) y 14px (secundarios); las pestañas de la home entran sin contador; los tiles van uno debajo del otro; la paleta de búsqueda ocupa el ancho de la barra superior. Los campos usan 16px en pantallas táctiles para que iOS no haga zoom al enfocarlos.
+- Celular (marco de menos de 680 px): los textos chicos suben a 12px (etiquetas y metadatos) y 14px (secundarios); las pestañas de la home entran sin contador; los tiles van uno debajo del otro; el buscador es un botón circular que, al tocarlo, se despliega a lo ancho de la barra superior con la paleta debajo. Los campos usan 16px en pantallas táctiles para que iOS no haga zoom al enfocarlos.
 
 ## 5. Tema claro y oscuro
 
@@ -170,7 +172,7 @@ Nombres actuales en el código: `.card`, `.card.black`, `.chip`/`.chips`, `.labe
 
 ## 6. Foto y assets
 
-- La foto es un recorte en blanco y negro con fondo transparente, en WebP. Está posicionada con `position: absolute` y se superpone al borde superior de la tarjeta de pestañas, que va por encima (`z-index`) y tapa la parte inferior del torso. En escritorio el alto está pensado para que se vean cabeza y hombros (cerca del 85 % de la foto por encima de la tarjeta), no solo la cara. `mount()` de la home la recorta abajo y, desde el borde de la tarjeta, también a la izquierda, para que el hombro no asome al costado.
+- La foto es un recorte en blanco y negro con fondo transparente, en WebP. La foto asoma por encima de la franja naranja `.nameplate` (nombre, rol y ubicación): en escritorio va centrada en `.hero` (fila de alto fijo `clamp(210px, 41cqh, 400px)`, para que la imagen no agrande la fila ni aplaste las pestañas), llena el alto libre y solo sus últimos 28px entran detrás de la franja; el borde de píxeles mide 18px para no tapar la foto; en celular, la franja se monta 56px sobre la foto. Ya no se recorta por JavaScript.
 - Si se reemplaza la foto: mismo tratamiento (recorte limpio sin halo, escala de grises, WebP con alpha), probado sobre fondo claro y oscuro. Pesar menos de 100 KB.
 - Toda imagen lleva `alt` descriptivo y `width` y `height` explícitos. Las decorativas llevan `alt=""` o `aria-hidden="true"`.
 - Imágenes de proyectos: WebP o AVIF, con versión liviana para celular. Nada de imágenes de stock genéricas.

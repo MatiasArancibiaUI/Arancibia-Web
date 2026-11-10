@@ -43,18 +43,11 @@
 /* Columna de perfil */
 .home-profile {
   display: grid;
-  grid-template-rows: minmax(clamp(200px, 39cqh, 360px), auto) minmax(0, 1fr);
+  /* Alto fijo para la foto: si dependiera del contenido, la imagen agrandaría la fila y aplastaría las pestañas. */
+  grid-template-rows: clamp(210px, 41cqh, 400px) minmax(0, 1fr);
   gap: var(--gap);
   min-height: 0;
 }
-.profile {
-  position: relative;
-  z-index: 2;
-  width: 54%;
-  margin-left: auto;
-  padding-top: clamp(0px, 1cqh, 10px);
-}
-.name { font-size: clamp(26px, 4.3cqh, 42px); font-weight: 700; letter-spacing: -.035em; line-height: 1.02; text-wrap: balance; }
 .role {
   display: flex;
   align-items: center;
@@ -84,8 +77,6 @@
 .spec-val { min-width: 0; white-space: nowrap; }
 .about-id .spec { grid-template-columns: minmax(0, 1fr); }
 /* Ficha compacta de la home: una fila por dato, etiqueta corta a la izquierda. */
-.loc { display: flex; align-items: flex-start; gap: 6px; margin-top: clamp(8px, 1.4cqh, 14px); font-size: 12.5px; line-height: 1.35; color: var(--mute); }
-.loc .ic { width: 14px; height: 14px; margin-top: 1px; flex: none; }
 .spec-inline { grid-template-columns: minmax(0, 1fr); margin-top: clamp(8px, 1.4cqh, 14px); }
 .spec-inline > div { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: center; gap: 6px; padding: clamp(4px, .8cqh, 7px) 6px clamp(4px, .8cqh, 7px) 12px; }
 .spec-inline > div:nth-child(n) { grid-column: auto; border-left: 0; }
@@ -95,27 +86,45 @@
 .about-id .spec > div:nth-child(2) { border-top: 1px solid var(--line); }
 .copy-btn.in-spec { width: 24px; height: 24px; margin-left: auto; background: transparent; border: 1px solid var(--line); }
 
+/* Foto y franja con nombre, rol y ubicación: la foto asoma por encima de la franja y su borde
+   inferior queda escondido detrás de ella. */
+.hero { position: relative; display: grid; grid-template-rows: minmax(0, 1fr) auto; min-height: 0; }
+/* La foto llena el alto libre y solo sus últimos 28px entran detrás de la franja. */
 .photo {
-  position: absolute;
+  position: relative;
   z-index: 1;
-  top: 0;
-  left: 13cqw;
-  translate: -50% 0;
-  /* Alto pensado para que se vean cabeza y hombros antes de la tarjeta de pestañas, no solo la cara. */
-  height: clamp(260px, min(48cqh, 33cqw), 460px);
+  grid-row: 1;
+  justify-self: center;
+  align-self: end;
+  height: calc(100% + 28px);
   width: auto;
+  max-width: 100%;
+  margin-bottom: -28px;
+  object-fit: contain;
+  object-position: bottom;
   pointer-events: none;
   user-select: none;
-  /* La parte baja queda detrás de la tarjeta de pestañas. El recorte (js/views/home.js) corta abajo y,
-     desde el borde superior de la tarjeta, también a la izquierda, para que el hombro no asome al costado. */
-  clip-path: polygon(
-    0 0, 100% 0,
-    100% calc(100% - var(--photo-cut, 0px)),
-    var(--photo-left, 0px) calc(100% - var(--photo-cut, 0px)),
-    var(--photo-left, 0px) var(--photo-top, 100%),
-    0 var(--photo-top, 100%)
-  );
 }
+.nameplate {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 6px;
+  grid-row: 2;
+  padding: clamp(10px, 1.5cqh, 15px) clamp(16px, 1.8cqw, 22px);
+  /* Arriba recto: ahí se disuelve en píxeles hacia la foto. */
+  border-radius: 0 0 var(--r-tile) var(--r-tile);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.np-pixels { position: absolute; left: 0; bottom: 100%; width: 100%; height: 18px; pointer-events: none; }
+.np-name { font-size: clamp(20px, 3cqh, 28px); font-weight: 700; letter-spacing: -.035em; line-height: 1.05; }
+/* Cursor: un píxel cuadrado sobre la línea de base que parpadea, como el del logo. */
+.np-name::after { content: ""; display: inline-block; width: .24em; height: .24em; margin-left: .12em; background: var(--on-accent-tint); animation: blink 1.1s steps(1, end) infinite; }
+.np-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; font-size: clamp(13px, 1.9cqh, 15px); font-weight: 600; }
+.np-role, .np-loc { display: inline-flex; align-items: center; gap: 7px; }
+.np-role::before { content: ""; width: 7px; height: 7px; background: var(--on-accent-tint); }
+.np-loc .ic { width: 15px; height: 15px; color: var(--on-accent-tint); }
 
 .tabcard {
   z-index: 3;
@@ -715,6 +724,9 @@
 /* ========================================================================= */
 @container app (height < 760px) {
   .trend, .learn .chips { display: none; }
+  /* La foto se queda con su alto: en pantallas bajas el tile de años cede y "Hablemos" ocupa la fila. */
+  .tile.gray { display: none; }
+  .tiles { grid-template-columns: minmax(0, 1fr); }
   .tile { min-height: 0; gap: 4px; padding: 10px 14px; }
   .tiles { padding-top: 10px; }
   .tile-title { font-size: clamp(18px, 3cqh, 24px); }
@@ -726,13 +738,11 @@
 
 /* Marco angosto (laptops de 1024 a 1280): pestañas y perfil más compactos. */
 @container app (width < 1200px) {
-  .photo { left: 11cqw; height: clamp(250px, min(47cqh, 31cqw), 440px); }
   /* Etiquetas de herramientas más compactas para que la lista entre sin scroll. */
   .tool-chips { gap: 6px; }
   .tool-chips .chip { padding: 4px 8px; font-size: 12px; }
   .tool-chips .logo { width: 12px; height: 12px; }
   .spec dd { font-size: 12px; }
-  .profile { width: 56%; }
   /* Marco angosto: etiqueta arriba y valor abajo, para que el email entre completo. */
   .spec-inline > div { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "t c" "v c"; row-gap: 0; }
   .spec-inline dt { grid-area: t; }
@@ -762,13 +772,15 @@
 
   .home { display: flex; flex-direction: column; gap: var(--gap); }
   .home-profile, .home-work { display: contents; }
-  /* Jerarquía en columna: identidad compacta arriba (quién), el titular como único título dominante (qué hago) y la foto. */
-  .profile { order: 1; width: auto; margin-left: 0; padding-top: 4px; }
-  .name { font-size: 24px; }
-  .role { margin-top: 4px; font-size: 15px; }
-  .loc { margin-top: 6px; }
-  .home .headline { order: 2; max-width: 16ch; white-space: normal; font-size: clamp(30px, 9cqw, 44px); line-height: 1.05; }
-  .photo { order: 4; position: relative; top: auto; left: auto; translate: none; align-self: center; height: auto; width: min(380px, 94%); margin-bottom: calc(-1 * var(--gap) - 72px); }
+  /* Jerarquía en columna: el titular manda; debajo, la foto con la franja de nombre, rol y ubicación. */
+  .home .headline { order: 1; max-width: 16ch; white-space: normal; font-size: clamp(30px, 9cqw, 44px); line-height: 1.05; }
+  .hero { order: 2; }
+  .hero { grid-template-rows: auto auto; }
+  .photo { align-self: auto; height: auto; width: min(360px, 88%); max-width: none; margin-bottom: 0; }
+  .nameplate { margin-top: -56px; }
+  .np-pixels { height: 30px; }
+  .np-name { font-size: 26px; }
+  .np-meta { font-size: 14px; }
   .tabcard { order: 5; }
   .logo-strip { order: 6; }
   /* Sin el reparto de alto del escritorio (flex con base 0): en columna se aplastarían. */
@@ -825,12 +837,18 @@
   .topbar { display: flex; gap: 8px; padding-inline: 12px; }
   .topbar-left { flex: none; gap: 8px; }
   .topbar-right { flex: 1; }
-  .topbar-tools { flex: 1; }
+  .topbar-tools { flex: 1; justify-content: flex-end; }
   .brand-name, .search kbd, .cv-top { display: none; }
   .brand { flex: none; }
-  /* El buscador cede ancho para que los botones redondos no se pisen. */
-  .search { min-width: 0; }
-  .search input { min-width: 0; width: 100%; }
+  /* Buscador como botón circular: el campo invisible cubre el círculo, así un toque lo enfoca y abre el teclado.
+     Con el foco adentro se despliega a lo ancho de la barra superior. */
+  .search { flex: none; width: 44px; padding: 0; justify-content: center; }
+  .search > .ic { color: var(--ink); }
+  .search input { position: absolute; inset: 0; width: 100%; padding: 0; opacity: 0; cursor: pointer; }
+  .search:focus-within { position: absolute; z-index: 6; top: 50%; left: 12px; right: 12px; translate: 0 -50%; width: auto; justify-content: flex-start; padding: 0 12px 0 16px; }
+  .search:focus-within > .ic { color: var(--mute); }
+  .search:focus-within input { position: static; opacity: 1; cursor: text; }
+  .topbar:has(.search:focus-within) .brand { visibility: hidden; }
   .topbar .icon-btn { flex: none; }
   .view { --pad-x: 12px; }
   .dock-btn { padding: 0 12px; }
@@ -850,9 +868,8 @@
   .tile-title { font-size: 26px; }
   .now-co span { white-space: nowrap; }
   .now-co .company-logo { height: 24px; }
-  /* La paleta de búsqueda se ancla a la barra superior completa, no al buscador angosto. */
-  .search { position: static; }
-  .palette { left: 12px; right: 12px; top: calc(100% - 2px); width: auto; max-height: min(420px, 70vh); }
+  /* La paleta va debajo del buscador desplegado, a su mismo ancho. */
+  .palette { left: 0; right: 0; top: calc(100% + 8px); width: auto; max-height: min(420px, 70vh); }
   /* Celular: los textos chicos suben un punto para leerse bien. */
   .label, .eyebrow, .strip-label, .unit, .facts dt, .spec dt, .ring-unit, .tl-range, .tl-role span, .tl-years span,
   .row-d, .er-d, .pcard-meta, .pipe-count, .stage-n, .console-bar, .c-lab, .sys-s, .lr-s { font-size: 12px; }
@@ -871,7 +888,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .strip-list, .live-dot, .panel:not([hidden]), .timeline.is-in .tl-track span.now { animation: none; }
+  .strip-list, .live-dot, .panel:not([hidden]), .timeline.is-in .tl-track span.now, .np-name::after { animation: none; }
   .tl-role, .tl-track span { transition: none; }
   /* Mismos selectores que las animaciones de Proceso, para ganarles en especificidad. */
   .pp:not([hidden]), .pp:not([hidden]) .c-task, .pp:not([hidden]) .c-ok, .pp:not([hidden]) .c-out,

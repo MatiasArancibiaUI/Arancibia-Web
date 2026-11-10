@@ -54,12 +54,13 @@ export function render() {
   return `
   <section class="view home">
     <div class="home-profile">
-      <img class="photo" src="assets/matias-bn.webp" alt="Retrato de Matías Arancibia en blanco y negro, con saco y corbata" width="800" height="728" fetchpriority="high">
-
-      <div class="profile">
-        <p class="name">${esc(profile.nombre)}</p>
-        <p class="role">${esc(profile.rol)}</p>
-        <p class="loc">${icon('mapPin')} ${esc(c.ubicacion)}</p>
+      <div class="hero">
+        <img class="photo" src="assets/matias-bn.webp" alt="Retrato de Matías Arancibia en blanco y negro, con saco y corbata" width="800" height="728" fetchpriority="high">
+        <div class="nameplate">
+          <canvas class="np-pixels" data-kind="dissolve" data-seed="11" aria-hidden="true"></canvas>
+          <p class="np-name">${esc(profile.nombre)}</p>
+          <p class="np-meta"><span class="np-role">${esc(profile.rol)}</span><span class="np-loc">${icon('mapPin')} ${esc(c.ubicacion)}</span></p>
+        </div>
       </div>
 
       <section class="card tabcard" aria-label="Resumen">
@@ -198,27 +199,5 @@ export function render() {
 
 export function mount(el) {
   initTabs(el);
-  // Recorta la foto contra la tarjeta de pestañas: abajo, a 24px del borde superior de la tarjeta,
-  // y a la izquierda de la tarjeta desde ese borde para abajo.
-  const photo = el.querySelector('.photo');
-  const tabcard = el.querySelector('.tabcard');
-  const props = ['--photo-cut', '--photo-left', '--photo-top'];
-  const fit = () => {
-    if (getComputedStyle(photo).position !== 'absolute') {
-      props.forEach((n) => photo.style.removeProperty(n));
-      return;
-    }
-    const p = photo.getBoundingClientRect();
-    const t = tabcard.getBoundingClientRect();
-    const px = (v) => `${Math.round(Math.max(0, v))}px`;
-    photo.style.setProperty('--photo-cut', px(p.bottom - t.top - 24));
-    photo.style.setProperty('--photo-left', px(t.left - p.left));
-    photo.style.setProperty('--photo-top', px(t.top - p.top));
-  };
-  const ro = new ResizeObserver(fit);
-  ro.observe(el);
-  ro.observe(tabcard);
-  photo.addEventListener('load', fit);
-  fit();
-  return () => ro.disconnect();
+  return null;
 }

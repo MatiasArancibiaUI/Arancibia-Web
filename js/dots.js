@@ -163,8 +163,28 @@ function cover(ctx, w, h, rng, c) {
   }
 }
 
-const KINDS = { wave, pill, ring, scatter, cover };
-const LIVE = new Set(['wave', 'pill', 'ring', 'scatter']);
+// Borde que se disuelve en píxeles: la fila de abajo llena y cada vez menos píxeles hacia arriba.
+// En vivo, los píxeles del borde titilan despacio.
+function dissolve(ctx, w, h, rng, c, { t }) {
+  const pitch = 6;
+  const size = pitch - 1;
+  const cols = Math.ceil(w / pitch);
+  const rows = Math.max(2, Math.floor(h / pitch));
+  ctx.fillStyle = c.accent;
+  for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      const r0 = rng();
+      const wobble = rng() * 6.28;
+      const keep = Math.pow(1 - j / rows, 1.8);
+      const flicker = t ? 0.12 * Math.sin(t * 1.4 + wobble) : 0;
+      if (j > 0 && r0 + flicker > keep) continue;
+      ctx.fillRect(i * pitch, h - (j + 1) * pitch, size, size);
+    }
+  }
+}
+
+const KINDS = { wave, pill, ring, scatter, cover, dissolve };
+const LIVE = new Set(['wave', 'pill', 'ring', 'scatter', 'dissolve']);
 const GROWS = new Set(['wave', 'pill']);
 const mounted = new Set();
 let grewOnce = false;
