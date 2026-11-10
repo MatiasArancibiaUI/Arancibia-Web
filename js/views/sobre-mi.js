@@ -21,7 +21,7 @@ export function render() {
     <div class="about-grid">
       <aside class="card about-id" aria-label="Datos de contacto">
         <i class="tick" aria-hidden="true"></i>
-        <div class="about-photo"><img src="assets/matias-bn.webp" alt="Retrato de Matías Arancibia en blanco y negro" width="364" height="352" loading="lazy"></div>
+        <div class="about-photo"><img src="assets/matias-bn.webp" alt="Retrato de Matías Arancibia en blanco y negro" width="800" height="728" loading="lazy"></div>
         <div class="about-who">
           <h2 class="about-name">${esc(profile.nombreCompleto)}</h2>
           <p class="role">${esc(profile.rol)}</p>

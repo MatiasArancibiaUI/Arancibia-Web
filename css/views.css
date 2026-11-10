@@ -43,7 +43,7 @@
 /* Columna de perfil */
 .home-profile {
   display: grid;
-  grid-template-rows: minmax(clamp(170px, 31cqh, 300px), auto) minmax(0, 1fr);
+  grid-template-rows: minmax(clamp(200px, 39cqh, 360px), auto) minmax(0, 1fr);
   gap: var(--gap);
   min-height: 0;
 }
@@ -101,7 +101,7 @@
   top: 0;
   left: 13cqw;
   translate: -50% 0;
-  height: clamp(260px, min(56cqh, 40cqw), 540px);
+  height: clamp(300px, min(64cqh, 46cqw), 600px);
   width: auto;
   pointer-events: none;
   user-select: none;
@@ -170,12 +170,7 @@
 .trend { display: flex; align-items: center; gap: 8px; font-size: 12.5px; padding-bottom: 2px; }
 .trend .ic { width: 15px; height: 15px; color: var(--accent); }
 
-.tool-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(8px, 1.4cqh, 14px) 20px; align-content: start; }
-.tool-list > div { min-width: 0; padding-top: clamp(5px, .9cqh, 8px); border-top: 1px solid var(--line); }
-.tool-list > div:nth-child(-n + 2) { border-top: 0; padding-top: 0; }
-.tool-list dt { display: flex; align-items: baseline; gap: 8px; font-size: 13px; font-weight: 700; line-height: 1.25; }
-.tool-list dt .dots { font-size: 16px; color: var(--accent-display); }
-.tool-list dd { margin-top: 3px; font-size: 12px; line-height: 1.4; color: var(--mute); }
+.tool-chips { align-content: flex-start; gap: 8px; }
 
 .rows li { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 9px 0; border-top: 1px solid var(--line); }
 .rows li:first-child { border-top: 0; padding-top: 0; }
@@ -607,7 +602,11 @@ a.pcard:focus-visible { border-radius: var(--r-card); }
 
 /* Marco angosto (laptops de 1024 a 1280): pestañas y perfil más compactos. */
 @container app (width < 1200px) {
-  .photo { left: 10cqw; height: clamp(240px, min(52cqh, 32cqw), 540px); }
+  .photo { left: 11cqw; height: clamp(280px, min(62cqh, 40cqw), 600px); }
+  /* Etiquetas de herramientas más compactas para que la lista entre sin scroll. */
+  .tool-chips { gap: 6px; }
+  .tool-chips .chip { padding: 4px 8px; font-size: 12px; }
+  .tool-chips .logo { width: 12px; height: 12px; }
   .spec dd { font-size: 12px; }
   .profile { width: 56%; }
   /* Marco angosto: etiqueta arriba y valor abajo, para que el email entre completo. */
@@ -645,7 +644,7 @@ a.pcard:focus-visible { border-radius: var(--r-card); }
   .home-work .eyebrow { order: 1; margin-bottom: 0; }
   .home .headline { order: 2; max-width: 16ch; white-space: normal; font-size: clamp(28px, 8cqw, 44px); }
   .profile { order: 3; width: auto; margin-left: 0; }
-  .photo { order: 4; position: relative; top: auto; left: auto; translate: none; align-self: center; height: auto; width: min(300px, 78%); margin-bottom: calc(-1 * var(--gap) - 64px); }
+  .photo { order: 4; position: relative; top: auto; left: auto; translate: none; align-self: center; height: auto; width: min(380px, 94%); margin-bottom: calc(-1 * var(--gap) - 72px); }
   .tabcard { order: 5; }
   .logo-strip { order: 6; }
   .big { order: 7; }

@@ -31,6 +31,10 @@ function stackStrip() {
 
 const tag = (t) => `<li class="chip">${hasLogo(t) ? logo(t) : ''}${esc(t)}</li>`;
 
+// Pestaña Herramientas: solo programas. Quedan afuera conceptos, lenguajes, metodologías y duplicados.
+const NO_PROGRAMAS = new Set(['Prototipado interactivo', 'Design systems', 'Design-to-code', 'UX Research', 'HTML', 'CSS', 'JavaScript', 'Vercel Apps']);
+const programas = [...new Set(profile.habilidades.filter((h) => h.id !== 'metodologias').flatMap((h) => h.items))].filter((t) => !NO_PROGRAMAS.has(t));
+
 export function render() {
   const [actual] = profile.experiencia;
   const mesesActual = monthsBetween(actual.inicio, actual.fin);
@@ -51,7 +55,7 @@ export function render() {
   return `
   <section class="view home">
     <div class="home-profile">
-      <img class="photo" src="assets/matias-bn.webp" alt="Retrato de Matías Arancibia en blanco y negro, con saco y corbata" width="364" height="352" fetchpriority="high">
+      <img class="photo" src="assets/matias-bn.webp" alt="Retrato de Matías Arancibia en blanco y negro, con saco y corbata" width="800" height="728" fetchpriority="high">
 
       <div class="profile">
         <p class="name">${esc(profile.nombre)}</p>
@@ -63,7 +67,7 @@ export function render() {
         <i class="tick" aria-hidden="true"></i>
         <div class="tabs" role="tablist" aria-label="Resumen">
           <button type="button" role="tab" id="tab-exp" aria-selected="true" aria-controls="panel-exp">${icon('history')} Experiencia <span class="badge">${profile.experiencia.length}</span></button>
-          <button type="button" role="tab" id="tab-tools" aria-selected="false" aria-controls="panel-tools" tabindex="-1">Herramientas <span class="badge">${profile.habilidades.length}</span></button>
+          <button type="button" role="tab" id="tab-tools" aria-selected="false" aria-controls="panel-tools" tabindex="-1">Herramientas <span class="badge">${programas.length}</span></button>
           <button type="button" role="tab" id="tab-edu" aria-selected="false" aria-controls="panel-edu" tabindex="-1">Educación <span class="badge">${educacion.length}</span></button>
         </div>
 
@@ -90,11 +94,7 @@ export function render() {
           </div>
 
           <div role="tabpanel" id="panel-tools" aria-labelledby="tab-tools" class="panel" tabindex="0" hidden>
-            <dl class="tool-list">
-              ${profile.habilidades
-                .map((h) => `<div><dt><span class="dots" aria-hidden="true">${h.items.length}</span>${esc(h.corta)}</dt><dd>${h.items.map(esc).join(' · ')}</dd></div>`)
-                .join('')}
-            </dl>
+            <ul class="chips tool-chips">${programas.map(tag).join('')}</ul>
           </div>
 
           <div role="tabpanel" id="panel-edu" aria-labelledby="tab-edu" class="panel" tabindex="0" hidden>
