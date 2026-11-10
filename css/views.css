@@ -751,8 +751,26 @@
   .story-grid { grid-template-columns: minmax(0, 1fr); gap: 0; }
   /* Sin imagen fija (taparía el texto al scrollear): cada etapa lleva la suya arriba y todo se lee entero. */
   .story-visual { display: none; }
-  .sstep { align-content: start; min-height: 0; padding-block: 18px 28px; opacity: 1; translate: none; }
-  .sstep-visual { position: relative; display: block; height: clamp(220px, 58cqw, 320px); margin-bottom: 6px; padding: 0; overflow: hidden; }
+  /* Cards apiladas: cada etapa se pega arriba (top lo calcula js/views/proceso.js) y la siguiente la tapa. */
+  .story-steps { gap: 18px; }
+  .sstep {
+    position: sticky;
+    top: var(--stick, 10px);
+    align-content: start;
+    min-height: 0;
+    padding: 12px 12px 22px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-card);
+    background: var(--card);
+    opacity: 1;
+    translate: none;
+    transform-origin: 50% 0;
+    scale: calc(1 - var(--cover, 0) * .06);
+    transition: none;
+  }
+  .sstep > :not(.sstep-visual) { margin-inline: 6px; }
+  .sstep.is-on .sstep-list li { animation: none; }
+  .sstep-visual { position: relative; display: block; height: clamp(200px, 54cqw, 300px); margin-bottom: 6px; padding: 0; overflow: hidden; border-radius: 14px; }
   .sstep-visual canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   .sv-n { font-size: clamp(48px, 14cqw, 80px); }
   .sys { padding: 0 34px 0 0; }

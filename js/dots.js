@@ -343,12 +343,13 @@ function stage(ctx, w, h, rng, c, { t }, canvas) {
   let st = canvas.__stage;
   // Posiciones en arreglos planos [x0, y0, x1, y1, ...] que se reutilizan: nada se crea por cuadro.
   if (!st) {
-    // Primera vez: las partículas arrancan dispersas y se arman.
+    // Primera vez: las partículas arrancan dispersas y se arman (con data-enter="none", ya armadas).
     const r0 = mulberry32(7);
+    const still = canvas.dataset.enter === 'none';
     const from = new Float32Array(STAGE_N * 2);
     for (let i = 0; i < STAGE_N; i++) {
-      from[i * 2] = (r0() * 2 - 1) * 1.6;
-      from[i * 2 + 1] = (r0() * 2 - 1) * 1.1;
+      from[i * 2] = still ? target[i][0] : (r0() * 2 - 1) * 1.6;
+      from[i * 2 + 1] = still ? target[i][1] : (r0() * 2 - 1) * 1.1;
     }
     st = canvas.__stage = { name, from, start: t, cur: new Float32Array(STAGE_N * 2) };
   } else if (st.name !== name) {

@@ -35,7 +35,7 @@ function story() {
       (s, i) => `
       <li class="sstep${i === 0 ? ' is-on' : ''}" id="ps-${s.id}" data-i="${i}">
         <div class="sstep-visual card black" aria-hidden="true">
-          <canvas data-kind="stage" data-variant="${s.id}" data-seed="${11 + i}"></canvas>
+          <canvas data-kind="stage" data-variant="${s.id}" data-seed="${11 + i}" data-enter="none"></canvas>
           <p class="dots sv-n">${pad(i + 1)}</p>
         </div>
         <p class="sstep-k"><span class="dots" aria-hidden="true">${pad(i + 1)}</span> Etapa ${i + 1} de ${n}</p>
@@ -128,11 +128,6 @@ export function mount(el) {
     visual.classList.remove('is-swap');
     void visual.offsetWidth;
     visual.classList.add('is-swap');
-    // En celular cada etapa tiene su imagen: al encenderse, sus partículas se vuelven a armar.
-    if (stacked && !reduced) {
-      const own = steps[i].querySelector('.sstep-visual canvas');
-      if (own) own.__stage = null;
-    }
     // Sin movimiento, el canvas no se anima solo: se redibuja con la figura nueva.
     if (reduced) redrawAll();
   };
@@ -152,6 +147,33 @@ export function mount(el) {
   const io2 = new IntersectionObserver((items) => items.forEach((it) => it.target.classList.toggle('is-in', it.isIntersecting)), { threshold: 0.2 });
   el.querySelectorAll('.sysmap').forEach((n) => io2.observe(n));
 
+  // Celular: las etapas son cards que se pegan arriba y la siguiente se apila encima; la de abajo se achica
+  // un poco a medida que la tapan. Una card más alta que la pantalla se pega recién al terminar de leerla.
+  let raf = 0;
+  const stack = () => {
+    const vh = window.innerHeight;
+    steps.forEach((s, i) => s.style.setProperty('--stick', `${Math.min(10 + i * 6, vh - s.offsetHeight - 96)}px`));
+  };
+  const cover = () => {
+    raf = 0;
+    steps.forEach((s, i) => {
+      const next = steps[i + 1];
+      if (!next) return;
+      const h = s.offsetHeight;
+      const c = Math.min(1, Math.max(0, (s.getBoundingClientRect().top + h - next.getBoundingClientRect().top) / h));
+      s.style.setProperty('--cover', c.toFixed(3));
+    });
+  };
+  const onScroll = () => {
+    if (!raf) raf = requestAnimationFrame(cover);
+  };
+  const ro = new ResizeObserver(stack);
+  if (stacked) {
+    steps.forEach((s) => ro.observe(s));
+    window.addEventListener('resize', stack);
+    if (!reduced) window.addEventListener('scroll', onScroll, { passive: true });
+  }
+
   const onPedida = () => {
     const k = pasos.findIndex((s) => s.id === pedida);
     pedida = null;
@@ -165,6 +187,10 @@ export function mount(el) {
   return () => {
     io.disconnect();
     io2.disconnect();
+    ro.disconnect();
+    cancelAnimationFrame(raf);
+    window.removeEventListener('resize', stack);
+    window.removeEventListener('scroll', onScroll);
     document.removeEventListener('proceso:etapa', onPedida);
   };
 }
