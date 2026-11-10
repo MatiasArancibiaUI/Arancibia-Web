@@ -12,15 +12,16 @@
   --accent-ink: #b83f00;
   --accent-display: #e14b00;
   --accent-soft: #ffe4d4;
+  /* Tile "Hablemos": naranja de acento con texto blanco. */
+  --on-accent: #ffffff;
+  --on-accent-tint: #ffc9a6;
   --dot-off: #dad7cf;
   --black: #121211;
   --on-black: #f5f4f0;
   --on-black-mute: #9a9893;
   --line: #e0ded7;
-  --grid: rgb(20 20 19 / .055);
   --stack-1: #f8f7f3;
   --stack-2: #f1f0eb;
-  --focus: #141413;
   --dot-off-black: #2b2a28;
   --line-black: #2a2927;
   --scrim: rgb(18 18 17 / .4);
@@ -40,56 +41,30 @@
   --lift: -2px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --bg: #0b0b0a;
-    --panel: #131312;
-    --card: #1a1a19;
-    --soft: #242422;
-    --ink: #f2f1ed;
-    --mute: #a09e98;
-    --accent: #ff6a1a;
-    --accent-ink: #ff8f52;
-    --accent-display: #ff6a1a;
-    --accent-soft: #3b1e0d;
-    --dot-off: #32312e;
-    --black: #f2f1ed;
-    --on-black: #121211;
-    --on-black-mute: #64625d;
-    --line: #2a2a27;
-    --grid: rgb(255 255 255 / .04);
-    --stack-1: #171716;
-    --stack-2: #151514;
-    --focus: #f2f1ed;
-    --dot-off-black: #d3d1ca;
-    --line-black: #d8d6cf;
-    --scrim: rgb(0 0 0 / .6);
-  }
-}
-
+/* Tema oscuro: solo con el botón (el claro es el estándar). Grises de interfaz, sin negro puro;
+   la tarjeta de acento es la superficie más elevada. */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #0b0b0a;
-  --panel: #131312;
-  --card: #1a1a19;
-  --soft: #242422;
-  --ink: #f2f1ed;
-  --mute: #a09e98;
+  --bg: #161618;
+  --panel: #1c1c1f;
+  --card: #242428;
+  --soft: #2d2d32;
+  --ink: #ededef;
+  --mute: #a3a3ab;
   --accent: #ff6a1a;
   --accent-ink: #ff8f52;
-  --accent-display: #ff6a1a;
-  --accent-soft: #3b1e0d;
-  --dot-off: #32312e;
-  --black: #f2f1ed;
-  --on-black: #121211;
-  --on-black-mute: #64625d;
-  --line: #2a2a27;
-  --grid: rgb(255 255 255 / .04);
-  --stack-1: #171716;
-  --stack-2: #151514;
-  --focus: #f2f1ed;
-  --dot-off-black: #d3d1ca;
-  --line-black: #d8d6cf;
-  --scrim: rgb(0 0 0 / .6);
+  --accent-display: #ff7a33;
+  --accent-soft: #3d2416;
+  --on-accent: #ffffff;
+  --on-accent-tint: #ffc9a6;
+  --dot-off: #3b3b41;
+  --black: #323238;
+  --on-black: #f4f4f5;
+  --on-black-mute: #b0b0b8;
+  --line: #333338;
+  --stack-1: #212125;
+  --stack-2: #1f1f22;
+  --dot-off-black: #4a4a52;
+  --line-black: #45454c;
+  --scrim: rgb(0 0 0 / .55);
 }

@@ -101,12 +101,20 @@
   top: 0;
   left: 13cqw;
   translate: -50% 0;
-  height: clamp(300px, min(64cqh, 46cqw), 600px);
+  /* Alto pensado para que se vean cabeza y hombros antes de la tarjeta de pestañas, no solo la cara. */
+  height: clamp(260px, min(48cqh, 33cqw), 460px);
   width: auto;
   pointer-events: none;
   user-select: none;
-  /* La parte baja queda detrás de la tarjeta de pestañas; el recorte evita que asome al costado. */
-  clip-path: inset(0 0 var(--photo-cut, 0px) 0);
+  /* La parte baja queda detrás de la tarjeta de pestañas. El recorte (js/views/home.js) corta abajo y,
+     desde el borde superior de la tarjeta, también a la izquierda, para que el hombro no asome al costado. */
+  clip-path: polygon(
+    0 0, 100% 0,
+    100% calc(100% - var(--photo-cut, 0px)),
+    var(--photo-left, 0px) calc(100% - var(--photo-cut, 0px)),
+    var(--photo-left, 0px) var(--photo-top, 100%),
+    0 var(--photo-top, 100%)
+  );
 }
 
 .tabcard {
@@ -130,7 +138,7 @@
   color: var(--mute);
   transition: color var(--t);
 }
-.tabs [role="tab"]:hover { color: var(--ink); }
+@media (hover: hover) { .tabs [role="tab"]:hover { color: var(--ink); } }
 .tabs [role="tab"] .ic { width: 16px; height: 16px; }
 .tabs [role="tab"][aria-selected="true"] { background: var(--card); color: var(--ink); box-shadow: inset 0 2px 0 var(--accent); }
 .tabs [role="tab"]:focus-visible { outline-offset: -2px; border-radius: 12px 12px 0 0; }
@@ -201,24 +209,25 @@
     var(--soft);
   border: 1px solid var(--line);
 }
-.tile.black { background: var(--black); color: var(--on-black); transition: transform var(--t) var(--ease); }
-.tile.black::after {
+/* Llamado a la acción: el único tile naranja, para que se note primero. */
+.tile.accent { background: var(--accent); color: var(--on-accent); transition: transform var(--t) var(--ease), background-color var(--t) var(--ease); }
+.tile.accent::after {
   content: "";
   position: absolute;
   top: 12px;
   right: 12px;
   width: 8px;
   height: 8px;
-  background: var(--accent);
+  background: var(--on-accent-tint);
 }
-.tile.black:hover { transform: translateY(var(--lift)); }
-.tile.black:hover .ic-end { translate: 3px 0; }
-.tile.black .ic-end { transition: translate var(--t) var(--ease); }
-.tile.black:focus-visible { border-radius: var(--r-tile); }
+@media (hover: hover) { .tile.accent:hover { transform: translateY(var(--lift)); background: var(--accent-display); } }
+@media (hover: hover) { .tile.accent:hover .ic-end { translate: 3px 0; } }
+.tile.accent .ic-end { transition: translate var(--t) var(--ease); }
 .tile-num .dots { font-size: clamp(30px, 5.8cqh, 54px); }
 .tile-title { font-size: clamp(20px, 3.3cqh, 28px); font-weight: 700; letter-spacing: -.02em; }
 .tile-label { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--mute); }
-.tile.black .tile-label { color: var(--on-black-mute); width: 100%; }
+.tile.accent .tile-label { color: var(--on-accent); width: 100%; }
+.tile.accent .tile-label .ic { color: var(--on-accent-tint); }
 .tile-label .ic { width: 15px; height: 15px; }
 
 /* Columna de trabajo */
@@ -232,7 +241,6 @@
 .home-work > .home-row { flex: 1 1 0; min-height: 0; }
 /* El titular de la home va en una sola línea a lo ancho de la columna. */
 .home .headline { max-width: none; white-space: nowrap; font-size: clamp(22px, min(5.4cqh, 2.65cqw), 58px); }
-.home-work .eyebrow { margin-bottom: calc(-1 * var(--gap) + 6px); padding-top: clamp(0px, .6cqh, 6px); }
 
 /* Franja de herramientas con logos, en movimiento lento */
 .logo-strip {
@@ -258,9 +266,9 @@
 .strip-track { display: flex; overflow: hidden; }
 .strip-list { display: flex; flex: none; gap: clamp(20px, 2.4cqw, 34px); padding-right: clamp(20px, 2.4cqw, 34px); animation: marquee 48s linear infinite; }
 .strip-list li { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--mute); white-space: nowrap; transition: color var(--t); }
-.strip-list li:hover { color: var(--ink); }
+@media (hover: hover) { .strip-list li:hover { color: var(--ink); } }
 .strip-list .logo { width: 16px; height: 16px; }
-.logo-strip:hover .strip-list { animation-play-state: paused; }
+@media (hover: hover) { .logo-strip:hover .strip-list { animation-play-state: paused; } }
 @keyframes marquee { to { transform: translateX(-100%); } }
 
 /* Tarjeta grande: trabajo actual */
@@ -340,7 +348,7 @@
   transition: transform var(--t) var(--ease);
 }
 .play .ic { width: 15px; height: 15px; margin-left: 2px; }
-.play-link:hover .play { transform: translateY(var(--lift)) scale(1.05); }
+@media (hover: hover) { .play-link:hover .play { transform: translateY(var(--lift)) scale(1.05); } }
 
 /* ========================================================================= */
 /* Experiencia: línea de tiempo arriba, BYMA a la izquierda, UADE y Dogma     */
@@ -438,8 +446,7 @@
   text-transform: uppercase;
   transition: background-color var(--t), color var(--t), border-color var(--t);
 }
-.filter:hover { border-color: var(--accent); }
-.filter:focus-visible { border-radius: 8px; }
+@media (hover: hover) { .filter:hover { border-color: var(--accent); } }
 .filter-n { color: var(--mute); }
 .filter[aria-pressed="true"] { background: var(--black); border-color: var(--black); color: var(--on-black); }
 .filter[aria-pressed="true"] .filter-n { color: var(--accent); }
@@ -455,8 +462,7 @@
 .empty { padding: 24px 0; color: var(--mute); }
 
 .pcard { display: flex; flex-direction: column; height: 100%; padding: 0; overflow: hidden; transition: transform var(--t) var(--ease), border-color var(--t); }
-a.pcard:hover { transform: translateY(var(--lift)); border-color: var(--accent); }
-a.pcard:focus-visible { border-radius: var(--r-card); }
+@media (hover: hover) { a.pcard:hover { transform: translateY(var(--lift)); border-color: var(--accent); } }
 .pcard-cover { position: relative; flex: none; aspect-ratio: 5 / 2; margin: 8px 8px 0; border-radius: 14px; background: var(--soft); overflow: hidden; }
 .pcard-cover img { width: 100%; height: 100%; object-fit: cover; }
 .pcard-body { display: grid; flex: 1; align-content: start; gap: 8px; padding: clamp(10px, 1.6cqh, 16px) 18px 0; }
@@ -491,10 +497,9 @@ a.pcard:focus-visible { border-radius: var(--r-card); }
   transition: transform var(--t) var(--ease), border-color var(--t) var(--ease), background-color var(--t) var(--ease), color var(--t) var(--ease);
 }
 .pipe-play .ic { width: 14px; height: 14px; }
-.pipe-play:hover { transform: translateY(var(--lift)); border-color: var(--accent); }
+@media (hover: hover) { .pipe-play:hover { transform: translateY(var(--lift)); border-color: var(--accent); } }
 .pipe-play[aria-pressed="true"] { border-color: var(--black); background: var(--black); color: var(--on-black); }
 .pipe-play[aria-pressed="true"] .ic { color: var(--accent); }
-.pipe-play:focus-visible { border-radius: var(--r-pill); }
 
 .stages { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 8px; }
 .stages > li { min-width: 0; }
@@ -513,8 +518,7 @@ a.pcard:focus-visible { border-radius: var(--r-card); }
   text-align: left;
   transition: transform var(--t) var(--ease), border-color var(--t) var(--ease), background-color var(--t) var(--ease), color var(--t) var(--ease);
 }
-.stage:hover { transform: translateY(var(--lift)); border-color: var(--accent); background: var(--card); }
-.stage:focus-visible { border-radius: 14px; outline-offset: 3px; }
+@media (hover: hover) { .stage:hover { transform: translateY(var(--lift)); border-color: var(--accent); background: var(--card); } }
 .stage-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 .stage-n { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; color: var(--mute); }
 .stage-state { position: relative; display: grid; place-items: center; width: 18px; height: 18px; flex: none; border: 1px solid var(--dot-off); border-radius: 50%; color: transparent; }
@@ -539,7 +543,7 @@ a.pcard:focus-visible { border-radius: var(--r-card); }
 .segs i { display: block; height: 100%; background: var(--accent); transform-origin: left; transform: scaleX(0); transition: transform 400ms var(--ease); }
 .segs > .is-done i, .segs > .is-on i { transform: scaleX(1); }
 .pipeline.is-playing.is-in .segs > .is-on i { animation: seg-fill var(--dwell) linear forwards; }
-.pipeline.is-playing:has(.stages:hover, .pipe-panels:hover) .segs > .is-on i { animation-play-state: paused; }
+@media (hover: hover) { .pipeline.is-playing:has(.stages:hover, .pipe-panels:hover) .segs > .is-on i { animation-play-state: paused; } }
 @keyframes seg-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 .pipe-panels { padding-top: clamp(16px, 2.4cqh, 24px); border-top: 1px dashed var(--line); }
@@ -716,13 +720,13 @@ a.pcard:focus-visible { border-radius: var(--r-card); }
   .tile-title { font-size: clamp(18px, 3cqh, 24px); }
 }
 @container app (height < 680px) {
-  .ring-unit, .home-work .eyebrow { display: none; }
+  .ring-unit { display: none; }
   .facts dt .ic { display: none; }
 }
 
 /* Marco angosto (laptops de 1024 a 1280): pestañas y perfil más compactos. */
 @container app (width < 1200px) {
-  .photo { left: 11cqw; height: clamp(280px, min(62cqh, 40cqw), 600px); }
+  .photo { left: 11cqw; height: clamp(250px, min(47cqh, 31cqw), 440px); }
   /* Etiquetas de herramientas más compactas para que la lista entre sin scroll. */
   .tool-chips { gap: 6px; }
   .tool-chips .chip { padding: 4px 8px; font-size: 12px; }
@@ -758,9 +762,12 @@ a.pcard:focus-visible { border-radius: var(--r-card); }
 
   .home { display: flex; flex-direction: column; gap: var(--gap); }
   .home-profile, .home-work { display: contents; }
-  .home-work .eyebrow { order: 1; margin-bottom: 0; }
-  .home .headline { order: 2; max-width: 16ch; white-space: normal; font-size: clamp(28px, 8cqw, 44px); }
-  .profile { order: 3; width: auto; margin-left: 0; }
+  /* Jerarquía en columna: identidad compacta arriba (quién), el titular como único título dominante (qué hago) y la foto. */
+  .profile { order: 1; width: auto; margin-left: 0; padding-top: 4px; }
+  .name { font-size: 24px; }
+  .role { margin-top: 4px; font-size: 15px; }
+  .loc { margin-top: 6px; }
+  .home .headline { order: 2; max-width: 16ch; white-space: normal; font-size: clamp(30px, 9cqw, 44px); line-height: 1.05; }
   .photo { order: 4; position: relative; top: auto; left: auto; translate: none; align-self: center; height: auto; width: min(380px, 94%); margin-bottom: calc(-1 * var(--gap) - 72px); }
   .tabcard { order: 5; }
   .logo-strip { order: 6; }
@@ -829,14 +836,27 @@ a.pcard:focus-visible { border-radius: var(--r-card); }
   .dock-btn { padding: 0 12px; }
   .dock-btn:not([aria-current="page"]) .dock-text { display: none; }
   .tabs { overflow-x: auto; scrollbar-width: none; }
-  .tabs [role="tab"] { flex: none; padding-inline: 11px; font-size: 13px; }
+  /* Las tres pestañas entran sin scroll: el contador se ve en el panel. */
+  .tabs [role="tab"] { flex: 1 1 auto; justify-content: center; padding-inline: 8px; font-size: 13.5px; }
+  .tabs .badge { display: none; }
   .tabs [role="tab"] .ic { display: none; }
   .proj-grid { grid-template-columns: minmax(0, 1fr); }
   .big-mid { flex-direction: column; align-items: flex-start; }
   .big-num { justify-items: start; }
   .home-row { grid-template-columns: minmax(0, 1fr); }
-  .tile-title { font-size: clamp(22px, 7cqw, 30px); }
-  .palette { width: calc(100cqw - 24px); left: auto; right: -54px; }
+  /* Tiles uno debajo del otro: en dos columnas el texto se partía en cuatro líneas. */
+  .tiles { grid-template-columns: minmax(0, 1fr); }
+  .tile { min-height: 0; }
+  .tile-title { font-size: 26px; }
+  .now-co span { white-space: nowrap; }
+  .now-co .company-logo { height: 24px; }
+  /* La paleta de búsqueda se ancla a la barra superior completa, no al buscador angosto. */
+  .search { position: static; }
+  .palette { left: 12px; right: 12px; top: calc(100% - 2px); width: auto; max-height: min(420px, 70vh); }
+  /* Celular: los textos chicos suben un punto para leerse bien. */
+  .label, .eyebrow, .strip-label, .unit, .facts dt, .spec dt, .ring-unit, .tl-range, .tl-role span, .tl-years span,
+  .row-d, .er-d, .pcard-meta, .pipe-count, .stage-n, .console-bar, .c-lab, .sys-s, .lr-s { font-size: 12px; }
+  .sub, .row-s, .er-s, .er-note, .chip, .chips.sm .chip, .tool-chips .chip, .palette-hint, .feat-text, .sys-text, .c-task { font-size: 14px; }
   /* Recorrido en angosto: una fila de íconos con número; el nombre de la etapa está en el detalle. */
   .pipeline .card-head { flex-wrap: wrap; }
   .stages { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 4px; }
@@ -859,3 +879,16 @@ a.pcard:focus-visible { border-radius: var(--r-card); }
   .sysmap.is-in .sys-node, .sysmap.is-in .sys-node:not(:last-child)::after, .sysmap.is-in .sys-loop-packet { animation: none; }
   .segs i { transition: none; }
 }
+
+/* ========================================================================= */
+/* Estado presionado de todos los controles                                   */
+/* ========================================================================= */
+/* Al apretar, el control se hunde: baja 1px, se achica y se oscurece apenas, como un botón físico.
+   Va al final para ganarle al hover, que lo sube 2px. */
+:is(button, .icon-btn, .btn, .dock-btn, .brand, .link-row, .play-link, .copy-btn, .filter, [role="menuitem"], [role="option"]):not(:disabled):active {
+  transform: translateY(1px);
+  scale: .97;
+  filter: brightness(.92);
+}
+/* Tarjetas de proyecto: el mismo gesto, más sutil por su tamaño. */
+a.pcard:active { transform: translateY(1px); scale: .985; filter: brightness(.96); }

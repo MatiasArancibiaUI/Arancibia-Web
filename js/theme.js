@@ -1,10 +1,10 @@
 import { icon } from './icons.js';
 
 const KEY = 'theme';
-const media = matchMedia('(prefers-color-scheme: dark)');
 const root = document.documentElement;
 
-const effective = () => root.dataset.theme || (media.matches ? 'dark' : 'light');
+// El claro es el estándar: el oscuro solo se activa con el botón.
+const effective = () => (root.dataset.theme === 'dark' ? 'dark' : 'light');
 
 function syncButton(btn) {
   const dark = effective() === 'dark';
@@ -25,11 +25,6 @@ export function initTheme(btn) {
     } catch {
       // Sin almacenamiento disponible: el tema vale solo para esta visita.
     }
-    syncButton(btn);
-    window.dispatchEvent(new Event('themechange'));
-  });
-  media.addEventListener('change', () => {
-    if (root.dataset.theme) return;
     syncButton(btn);
     window.dispatchEvent(new Event('themechange'));
   });

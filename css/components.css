@@ -6,12 +6,6 @@
   --dock-h: 54px;
   --dock-bottom: 14px;
   --cols: minmax(0, 43fr) minmax(0, 57fr);
-  /* Retícula de plano técnico: líneas finas cada 48px, visibles entre tarjetas. */
-  background-image:
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-  background-size: 48px 48px;
-  background-position: -1px -1px;
 }
 
 /* --- Íconos y logos ----------------------------------------------------- */
@@ -145,7 +139,9 @@
   border-radius: var(--r-pill);
   color: var(--mute);
 }
-.search:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+.search:focus-within { border-color: var(--accent); outline: 1px solid var(--accent); outline-offset: 0; }
+/* iOS agranda la página al enfocar un campo con letra de menos de 16px. */
+@media (pointer: coarse) { .search input { font-size: 16px; } }
 .search input {
   flex: 1;
   min-width: 0;
@@ -216,7 +212,8 @@
   transition: transform var(--t) var(--ease), background-color var(--t) var(--ease), color var(--t) var(--ease);
 }
 .topbar .icon-btn { border: 1px solid var(--line); }
-.icon-btn:not(:disabled):hover { transform: translateY(var(--lift)); color: var(--accent-display); }
+/* Hover solo con mouse: en pantallas táctiles queda aplicado después de tocar. */
+@media (hover: hover) { .icon-btn:not(:disabled):hover { transform: translateY(var(--lift)); color: var(--accent-display); } }
 .icon-btn:disabled .ic { opacity: .4; }
 .icon-btn.sm { width: 36px; height: 36px; }
 .icon-btn.sm .ic { width: 16px; height: 16px; }
@@ -238,7 +235,7 @@
   transition: transform var(--t) var(--ease);
 }
 .btn .ic { color: var(--accent); }
-.btn:not(:disabled):hover { transform: translateY(var(--lift)); }
+@media (hover: hover) { .btn:not(:disabled):hover { transform: translateY(var(--lift)); } }
 .btn:disabled { opacity: .5; }
 
 .link-btn { font-weight: 600; color: var(--ink); text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; }
@@ -387,8 +384,8 @@
   transition: background-color var(--t) var(--ease), color var(--t) var(--ease);
 }
 .dock-btn .ic { width: 17px; height: 17px; }
-.dock-btn:hover { color: var(--ink); background: var(--soft); }
-.dock-btn:focus-visible { border-radius: var(--r-pill); outline-offset: -2px; }
+@media (hover: hover) { .dock-btn:hover { color: var(--ink); background: var(--soft); } }
+.dock-btn:focus-visible { outline-offset: -2px; }
 .dock-btn[aria-current="page"] { background: var(--black); color: var(--on-black); }
 .dock-btn[aria-current="page"] .ic { color: var(--accent); }
 
@@ -451,7 +448,7 @@ dialog[open] .dialog-card { animation: pop var(--t) var(--ease); }
   font-weight: 600;
   transition: transform var(--t) var(--ease), border-color var(--t);
 }
-.link-row:hover { transform: translateY(var(--lift)); border-color: var(--accent); }
+@media (hover: hover) { .link-row:hover { transform: translateY(var(--lift)); border-color: var(--accent); } }
 .link-row .ic-end { color: var(--mute); width: 16px; height: 16px; }
 
 /* --- Altura reducida: dock más chico ------------------------------------ */

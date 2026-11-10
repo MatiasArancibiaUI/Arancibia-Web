@@ -46,7 +46,6 @@ export function render() {
   const estudio = profile.educacion[0];
   const cursando = personal.aprendiendo.items.filter((i) => i.inicio && isCurrent(i.fin)).length;
   const c = profile.contacto;
-  const ingles = profile.idiomas.find((i) => i.corto === 'EN');
   const educacion = [
     ...profile.educacion.map((e) => ({ t: e.tituloCorto, s: e.institucionCorta, f: fmtRange(e.inicio, e.fin) })),
     ...profile.certificaciones.map((x) => ({ t: x.titulo, s: x.institucion, f: fmtYM(x.fecha) })),
@@ -60,7 +59,7 @@ export function render() {
       <div class="profile">
         <p class="name">${esc(profile.nombre)}</p>
         <p class="role">${esc(profile.rol)}</p>
-        <p class="loc">${icon('mapPin')} ${esc(c.ubicacion)} · ES nativo · EN ${esc(ingles.nivel)}</p>
+        <p class="loc">${icon('mapPin')} ${esc(c.ubicacion)}</p>
       </div>
 
       <section class="card tabcard" aria-label="Resumen">
@@ -105,7 +104,7 @@ export function render() {
         </div>
 
         <div class="tiles">
-          <button type="button" class="tile black" data-open-contact>
+          <button type="button" class="tile accent" data-open-contact>
             <span class="tile-title">Hablemos</span>
             <span class="tile-label">${icon('mail')} Email, teléfono y redes ${icon('arrowRight', 'ic-end')}</span>
           </button>
@@ -118,7 +117,6 @@ export function render() {
     </div>
 
     <div class="home-work">
-      <p class="eyebrow"><span class="idx">01</span> Inicio · AI Product Designer</p>
       <h1 class="headline view-title" tabindex="-1">Diseño interfaces que salen a <span class="hl">producción</span>.</h1>
       ${stackStrip()}
 
@@ -200,17 +198,22 @@ export function render() {
 
 export function mount(el) {
   initTabs(el);
-  // Recorta la foto a la altura del borde superior de la tarjeta de pestañas.
+  // Recorta la foto contra la tarjeta de pestañas: abajo, a 24px del borde superior de la tarjeta,
+  // y a la izquierda de la tarjeta desde ese borde para abajo.
   const photo = el.querySelector('.photo');
   const tabcard = el.querySelector('.tabcard');
+  const props = ['--photo-cut', '--photo-left', '--photo-top'];
   const fit = () => {
     if (getComputedStyle(photo).position !== 'absolute') {
-      photo.style.removeProperty('--photo-cut');
+      props.forEach((n) => photo.style.removeProperty(n));
       return;
     }
     const p = photo.getBoundingClientRect();
-    const cut = Math.max(0, p.bottom - tabcard.getBoundingClientRect().top - 24);
-    photo.style.setProperty('--photo-cut', `${Math.round(cut)}px`);
+    const t = tabcard.getBoundingClientRect();
+    const px = (v) => `${Math.round(Math.max(0, v))}px`;
+    photo.style.setProperty('--photo-cut', px(p.bottom - t.top - 24));
+    photo.style.setProperty('--photo-left', px(t.left - p.left));
+    photo.style.setProperty('--photo-top', px(t.top - p.top));
   };
   const ro = new ResizeObserver(fit);
   ro.observe(el);

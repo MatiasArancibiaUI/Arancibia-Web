@@ -27,7 +27,7 @@ Sitio web personal de Matías Ezequiel Arancibia, AI Product Designer (UI/UX, De
 
 El sitio muestra cuatro cosas: proyectos, herramientas que usa, experiencia y medios de contacto. Es un portfolio que tiene que transmitir criterio de diseño y manejo de automatización con IA, así que la calidad visual y de código es parte del mensaje.
 
-Referencia visual: un tablero apaisado tipo dashboard (composición "Rythea") con la estética técnica de "Sigil": acento naranja, píxeles cuadrados, retícula de plano de fondo, etiquetas en monoespaciada con un cuadrito naranja, esquinas naranjas en las tarjetas principales, una palabra del titular en tipografía de píxeles, una tarjeta negra de acento, la foto recortada en blanco y negro asomando sobre las tarjetas y un dock semicircular. El perfil (foto, nombre, pestañas) va a la izquierda y el trabajo (titular, stack, tarjetas) a la derecha. No cambiar esta dirección sin que yo lo pida.
+Referencia visual: un tablero apaisado tipo dashboard (composición "Rythea") con la estética técnica de "Sigil": acento naranja, píxeles cuadrados, etiquetas en monoespaciada con un cuadrito naranja, esquinas naranjas en las tarjetas principales, una palabra del titular en tipografía de píxeles, una tarjeta negra de acento, la foto recortada en blanco y negro asomando sobre las tarjetas y un dock semicircular. El perfil (foto, nombre, pestañas) va a la izquierda y el trabajo (titular, stack, tarjetas) a la derecha. No cambiar esta dirección sin que yo lo pida.
 
 ## 2. Stack y estructura
 
@@ -89,12 +89,13 @@ Todo color, tipografía y radio sale de tokens CSS definidos en `:root`. No escr
 | `--accent` | `#ff5a00` | Acento naranja: píxeles, marcadores, cuadritos, esquinas |
 | `--accent-display` | `#e14b00` | Naranja para texto grande (números, palabra del titular), contraste de 3:1 o más |
 | `--accent-soft` | `#ffe4d4` | Celdas resaltadas, barrido de las píldoras |
+| `--on-accent` | `#ffffff` | Texto del tile "Hablemos" sobre `--accent` (hover en `--accent-display`); íconos y cuadrito en `--on-accent-tint` (`#ffc9a6`), igual en los dos temas |
 | `--dot-off` | `#dad7cf` | Píxeles apagados |
-| `--line` / `--grid` | `#e0ded7` / tinta al 5,5 % | Bordes finos / retícula de fondo |
+| `--line` | `#e0ded7` | Bordes finos |
 | `--black` | `#121211` | Tarjeta negra, dock activo, tile negro |
 | `--on-black` / `--on-black-mute` | `#f5f4f0` / `#9a9893` | Texto sobre negro |
 
-El tema oscuro redefine los mismos tokens (ahí `--black` se invierte a claro). Reglas:
+El tema oscuro redefine los mismos tokens con grises de interfaz (fondo `#161618`, panel `#1c1c1f`, tarjeta `#242428`), sin negro puro; ahí `--black` es la superficie más elevada (`#323238`). Reglas:
 - El naranja es el único acento. No sumar otros colores de marca. Los logos de herramientas van monocromos.
 - El naranja se usa en píxeles, marcadores, números grandes y una palabra del titular, nunca en texto chico ni en bloques de texto.
 - La tarjeta negra es el único elemento de alto contraste por sección. No convertir más tarjetas en negras.
@@ -113,7 +114,7 @@ El tema oscuro redefine los mismos tokens (ahí `--black` se invierte a claro). 
 - Panel principal: radio 28px. Tarjetas: 20px con borde de 1px `--line`. Tiles: 16px. Chips: etiqueta de 6px (los datos del perfil, píldora). Botones de ícono y dock: círculos.
 - Separación entre tarjetas: 20px en escritorio, menos en celular.
 - Sin sombras. La jerarquía sale del color de fondo, los bordes finos y el espacio.
-- Elementos gráficos permitidos (y solo estos): retícula de fondo cada 48px, esquina naranja `.tick` en las tarjetas principales, cuadritos naranjas en etiquetas y viñetas, rayado diagonal fino en el tile gris, borde punteado en el pie de los proyectos.
+- Fondo liso, sin retícula. Elementos gráficos permitidos (y solo estos): esquina naranja `.tick` en las tarjetas principales, cuadritos naranjas en etiquetas y viñetas, rayado diagonal fino en el tile gris, borde punteado en el pie de los proyectos.
 
 ### Logo
 
@@ -127,7 +128,8 @@ Discreto y siempre anulado con `prefers-reduced-motion`:
 - Canvas a 12 cuadros por segundo: la onda crece una vez y después respira un píxel, una columna recorre las píldoras, el último punto del gráfico de dispersión late, el anillo gira muy lento.
 - Franja de logos (`.logo-strip`) en desplazamiento lento; se pausa al pasar el mouse.
 - El cursor del logo y "Actual" parpadean en pasos.
-- Hover: tarjetas y botones suben 2px y toman el naranja.
+- Presionado (`:active`, al final de `css/views.css`): todo control baja 1px, se achica al 97 % y se oscurece (`brightness(.92)`), como un botón físico; las tarjetas de proyecto, al 98,5 %. Va al final para ganarle al hover.
+- Hover: tarjetas y botones suben 2px y toman el naranja. Siempre dentro de `@media (hover: hover)`: en pantallas táctiles el hover queda aplicado después de tocar.
 - Proceso (pedido explícito de más movimiento en esa vista): el segmento de la etapa activa se llena con el tiempo, la etapa activa tiene un píxel que parpadea, las tareas de la consola se escriben y se marcan; en el flujo con IA cada nodo se enciende en orden, un píxel pasa al siguiente y otro vuelve por el ciclo del P.O. Todo en pasos (`steps()`), solo con el bloque en pantalla (clase `.is-in` por `IntersectionObserver`) y anulado con movimiento reducido.
 
 ### Componentes existentes (reutilizarlos, no inventar variantes)
@@ -139,16 +141,16 @@ Discreto y siempre anulado con `prefers-reduced-motion`:
 - `.logo-strip`: franja "Stack" con los logos de las herramientas (`js/logos.js`, Simple Icons CC0). Cursor, Pendo y los productos de Microsoft no tienen logo libre y se muestran solo con su nombre. `toolChip(nombre)` arma una etiqueta con logo.
 - `canvas[data-kind="wave"]` y `canvas[data-kind="ring"]`: ondas y anillo de píxeles naranjas, dibujados con `data-seed` fijo para que sean estables. Leen los colores de los tokens y se redibujan al cambiar el tema o el tamaño.
 - `.tabcard` con `role="tablist"`: pestañas de Experiencia, Herramientas y Educación.
-- `.tile`: acceso a una red (LinkedIn, Behance).
+- `.tile`: acceso a una red (LinkedIn, Behance). `.tile.accent` es el llamado "Hablemos": fondo `--accent`, texto blanco e íconos en naranja claro; es el único bloque naranja.
 - `.dock`: navegación flotante inferior con la sección activa marcada.
 
 Si falta un componente, primero intentá resolverlo con los existentes. Si hay que crear uno nuevo, tiene que usar los tokens, los radios y la tipografía de arriba.
 
-Nombres actuales en el código: `.card`, `.card.black`, `.chip`/`.chips`, `.label`, `.dots`, `.icon-btn` (`.sm`, `.xs`), `.btn`, `.tabcard` + `[role=tablist]`, `.tile` (`.gray`, `.black`), `.dock`, `.menu`, `.meter`, `.stack` (capas apiladas). Canvas: `canvas[data-kind="wave|pill|ring|scatter|cover"][data-seed]`; dentro de una `.black` usan `--dot-off-black` para los puntos apagados. En tema oscuro, `--black` se invierte a claro para que la tarjeta de acento mantenga el contraste.
+Nombres actuales en el código: `.card`, `.card.black`, `.chip`/`.chips`, `.label`, `.dots`, `.icon-btn` (`.sm`, `.xs`), `.btn`, `.tabcard` + `[role=tablist]`, `.tile` (`.gray`, `.accent`: el tile "Hablemos" en naranja con texto blanco), `.dock`, `.menu`, `.meter`, `.stack` (capas apiladas). Canvas: `canvas[data-kind="wave|pill|ring|scatter|cover"][data-seed]`; dentro de una `.black` usan `--dot-off-black` para los puntos apagados. En tema oscuro, `--black` es un gris elevado (`#323238`), no claro ni negro.
 
 ## 4. Layout y responsive
 
-- Escritorio: tablero apaisado de dos columnas, 43 / 57 (izquierda: perfil con foto, nombre, rol, ubicación e idiomas en una línea, pestañas y accesos (email y teléfono viven en Sobre mí y en el diálogo "Hablemos"); derecha: subtítulo numerado, titular, franja de stack, trabajo actual, aprendiendo y proyecto destacado).
+- Escritorio: tablero apaisado de dos columnas, 43 / 57 (izquierda: perfil con foto, nombre, rol y ubicación (sin idiomas), pestañas y accesos (email y teléfono viven en Sobre mí y en el diálogo "Hablemos"); derecha: titular sin subtítulo numerado, franja de stack, trabajo actual, aprendiendo y proyecto destacado). En columna (celular) el orden es: nombre, rol y ubicación como bloque compacto (24px), después el titular como único título dominante y después la foto.
 - Experiencia: debajo del título, la línea de tiempo en una tarjeta a todo el ancho (un píxel por mes desde 2023, etiquetas de cada rol arriba y años abajo; los meses se encienden en orden al entrar en pantalla). Debajo, BYMA a la izquierda con sus puntos en dos columnas; UADE y Dogma a la derecha, con todos sus puntos visibles.
 - Proceso: arriba, la tarjeta del recorrido a todo el ancho: siete etapas (Idear, Investigar, Diseñar, Validar con P.O., Documentar, Generar con IA, Desplegar) como botones con borde (pestañas con flechas, Inicio y Fin); la activa va en negro y las recorridas llevan tilde naranja. Debajo, una barra segmentada marca el avance y el tiempo, y el detalle de la etapa muestra número, título, texto, herramientas y una consola con las tareas y el entregable. Se recorre sola cada 6 s (botón Pausar/Reproducir; se frena al tocar una etapa, se pausa con el mouse encima y no arranca sola con movimiento reducido). Debajo, la tarjeta negra "Flujo con IA": Figma, componente.md, skills propias, Claude Code, GitHub y Vercel conectados, con la vuelta de validación e iteración con el P.O.; en celular va en vertical. Herramientas, formación, habilidades y mercado de capitales no van en esta vista.
 - Sobre mí: cuatro columnas. Datos de contacto y bio ocupan columnas completas; experiencia, idiomas, formación y certificaciones son tarjetas chicas.
@@ -157,17 +159,18 @@ Nombres actuales en el código: `.card`, `.card.black`, `.chip`/`.chips`, `.labe
 - Nunca scroll horizontal en la página. Solo tablas o bloques de código pueden desbordar, dentro de su propio contenedor con `overflow-x: auto`.
 - Los hijos de grid o flex que contienen texto llevan `min-width: 0`.
 - Probar siempre a 1440, 1024, 768 y 390px de ancho.
+- Celular (marco de menos de 680 px): los textos chicos suben a 12px (etiquetas y metadatos) y 14px (secundarios); las pestañas de la home entran sin contador; los tiles van uno debajo del otro; la paleta de búsqueda ocupa el ancho de la barra superior. Los campos usan 16px en pantallas táctiles para que iOS no haga zoom al enfocarlos.
 
 ## 5. Tema claro y oscuro
 
-- Respetar `prefers-color-scheme` y permitir el botón manual (`data-theme="light|dark"` en `<html>`, guardado en `localStorage` dentro de `try/catch`).
-- Cada token tiene primero su valor claro en `:root`; el oscuro lo redefine en `@media (prefers-color-scheme: dark)` (con `:root:not([data-theme="light"])`) y en `:root[data-theme="dark"]`.
+- **El claro es el estándar.** No se sigue `prefers-color-scheme`: el sitio abre siempre en claro y el oscuro se activa solo con el botón (`data-theme="dark"` en `<html>`, guardado en `localStorage` dentro de `try/catch`).
+- Cada token tiene su valor claro en `:root` y el oscuro en `:root[data-theme="dark"]`.
 - `body` siempre tiene fondo explícito con un token.
 - Cada cambio visual se revisa en los dos temas antes de darlo por terminado.
 
 ## 6. Foto y assets
 
-- La foto es un recorte en blanco y negro con fondo transparente, en WebP. Está posicionada con `position: absolute` y se superpone al borde superior de la tarjeta de pestañas, que va por encima (`z-index`) y tapa la parte inferior del torso.
+- La foto es un recorte en blanco y negro con fondo transparente, en WebP. Está posicionada con `position: absolute` y se superpone al borde superior de la tarjeta de pestañas, que va por encima (`z-index`) y tapa la parte inferior del torso. En escritorio el alto está pensado para que se vean cabeza y hombros (cerca del 85 % de la foto por encima de la tarjeta), no solo la cara. `mount()` de la home la recorta abajo y, desde el borde de la tarjeta, también a la izquierda, para que el hombro no asome al costado.
 - Si se reemplaza la foto: mismo tratamiento (recorte limpio sin halo, escala de grises, WebP con alpha), probado sobre fondo claro y oscuro. Pesar menos de 100 KB.
 - Toda imagen lleva `alt` descriptivo y `width` y `height` explícitos. Las decorativas llevan `alt=""` o `aria-hidden="true"`.
 - Imágenes de proyectos: WebP o AVIF, con versión liviana para celular. Nada de imágenes de stock genéricas.
@@ -195,7 +198,7 @@ Cuando te pase un proyecto nuevo, seguí estos pasos:
 ## 9. Accesibilidad
 
 - HTML semántico: un solo `<h1>`, jerarquía de títulos ordenada, `<main>`, `<nav>`, `<header>`, `<footer>`.
-- Foco visible en todo elemento interactivo. Navegación completa con teclado, incluidas las pestañas con flechas izquierda y derecha.
+- Foco visible en todo elemento interactivo: anillo naranja (`--accent`) de 2px separado 3px del control, que sigue su forma (`:focus-visible` en `css/base.css`; no fijar `border-radius` en el foco salvo en enlaces de texto). Navegación completa con teclado, incluidas las pestañas con flechas izquierda y derecha.
 - Contraste suficiente en ambos temas. El rojo sobre fondos claros no se usa para texto pequeño.
 - Los números en Doto llevan `aria-hidden` cuando hay un texto equivalente al lado.
 - Respetar `prefers-reduced-motion`: sin animaciones obligatorias, y las transiciones se anulan en ese caso.
