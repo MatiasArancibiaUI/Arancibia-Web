@@ -52,7 +52,8 @@ function story() {
     <section class="story" aria-labelledby="h-proc" style="--n:${n}">
       <h2 class="sr-only" id="h-proc">${esc(p.titulo)}</h2>
       <div class="story-grid">
-        <ol class="story-steps">${steps}</ol>
+        <ol class="story-steps" aria-label="Etapas del proceso">${steps}</ol>
+        <div class="story-dots">${p.pasos.map((s, i) => `<button type="button" data-go="${i}" aria-label="Ver la etapa ${i + 1}: ${esc(s.titulo)}"${i === 0 ? ' aria-current="step"' : ''}><span></span></button>`).join('')}</div>
         <div class="story-visual card black" aria-hidden="true">
           <canvas data-kind="stage" data-variant="${first.id}" data-seed="5"></canvas>
           <p class="dots sv-n">01</p>
@@ -107,13 +108,16 @@ export function render() {
 
 export function mount(el) {
   const steps = [...el.querySelectorAll('.sstep')];
+  const track = el.querySelector('.story-steps');
+  const dots = [...el.querySelectorAll('.story-dots button')];
   const visual = el.querySelector('.story-visual');
   const canvas = visual.querySelector('canvas');
   const num = visual.querySelector('.sv-n');
   const rail = [...visual.querySelectorAll('.sv-rail span')];
   const pasos = personal.proceso.pasos;
   const reduced = prefersReducedMotion();
-  // Celular y tablet: cada etapa lleva su imagen en el flujo (la imagen fija taparía el texto al scrollear).
+  // Celular y tablet: las etapas son un carrusel horizontal (cada una con su imagen); en escritorio, un
+  // recorrido vertical con la imagen fija al costado.
   const stacked = matchMedia('(max-width: 991.98px), (max-height: 631.98px)').matches;
   let active = -1;
 
@@ -121,7 +125,9 @@ export function mount(el) {
     if (i === active) return;
     active = i;
     steps.forEach((s, k) => s.classList.toggle('is-on', k === i));
+    dots.forEach((d, k) => (k === i ? d.setAttribute('aria-current', 'step') : d.removeAttribute('aria-current')));
     rail.forEach((r, k) => (r.className = k < i ? 'is-done' : k === i ? 'is-on' : ''));
+    if (stacked) return;
     canvas.dataset.variant = pasos[i].id;
     num.textContent = pad(i + 1);
     // Cambio con un parpadeo de glitch en el número.
@@ -132,53 +138,67 @@ export function mount(el) {
     if (reduced) redrawAll();
   };
 
-  // La etapa activa es la que cruza una franja de la pantalla: el medio en escritorio; en celular, la parte baja,
-  // para que la imagen de la etapa se arme apenas entra.
+  // Escritorio: la etapa activa es la que cruza la franja del medio de la pantalla.
+  // Carrusel: la card que ocupa la mayor parte del carrusel.
   const io = new IntersectionObserver(
     (items) => {
       const hit = items.filter((it) => it.isIntersecting).map((it) => Number(it.target.dataset.i));
-      if (hit.length) activate(Math.max(...hit));
+      if (hit.length) activate(stacked ? hit[0] : Math.max(...hit));
     },
-    { rootMargin: stacked ? '-20% 0px -45% 0px' : '-45% 0px -45% 0px' },
+    stacked ? { root: track, threshold: 0.6 } : { rootMargin: '-45% 0px -45% 0px' },
   );
   steps.forEach((s) => io.observe(s));
+
+  // Carrusel: los puntos llevan a una etapa; con el foco en el carrusel, las flechas pasan de a una.
+  // Un gesto avanza o retrocede una sola card: si el dedo arrastró más de una, al soltar vuelve a la vecina.
+  let gestureFrom = 0;
+  let settle = 0;
+  const goTo = (i) => {
+    const k = Math.max(0, Math.min(steps.length - 1, i));
+    gestureFrom = k;
+    track.scrollTo({ left: steps[k].offsetLeft - track.offsetLeft - parseFloat(getComputedStyle(track).scrollPaddingLeft || 0), behavior: reduced ? 'auto' : 'smooth' });
+  };
+  const onDot = (e) => {
+    const b = e.target.closest('[data-go]');
+    if (b) goTo(Number(b.dataset.go));
+  };
+  const onKey = (e) => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    e.preventDefault();
+    goTo(active + (e.key === 'ArrowRight' ? 1 : -1));
+  };
+  const onTouch = () => {
+    gestureFrom = active;
+  };
+  const onTrackScroll = () => {
+    clearTimeout(settle);
+    settle = setTimeout(() => {
+      const pitch = steps[1].offsetLeft - steps[0].offsetLeft;
+      const near = Math.round(track.scrollLeft / pitch);
+      if (Math.abs(near - gestureFrom) > 1) goTo(gestureFrom + Math.sign(near - gestureFrom));
+    }, 90);
+  };
+  const dotsBox = el.querySelector('.story-dots');
+  if (stacked) {
+    track.tabIndex = 0;
+    dotsBox.addEventListener('click', onDot);
+    track.addEventListener('keydown', onKey);
+    track.addEventListener('touchstart', onTouch, { passive: true });
+    track.addEventListener('scroll', onTrackScroll, { passive: true });
+  }
 
   // El flujo con IA anima en bucle solo con el bloque en pantalla.
   const io2 = new IntersectionObserver((items) => items.forEach((it) => it.target.classList.toggle('is-in', it.isIntersecting)), { threshold: 0.2 });
   el.querySelectorAll('.sysmap').forEach((n) => io2.observe(n));
 
-  // Celular: las etapas son cards que se pegan arriba y la siguiente se apila encima; la de abajo se achica
-  // un poco a medida que la tapan. Una card más alta que la pantalla se pega recién al terminar de leerla.
-  let raf = 0;
-  const stack = () => {
-    const vh = window.innerHeight;
-    steps.forEach((s, i) => s.style.setProperty('--stick', `${Math.min(10 + i * 6, vh - s.offsetHeight - 96)}px`));
-  };
-  const cover = () => {
-    raf = 0;
-    steps.forEach((s, i) => {
-      const next = steps[i + 1];
-      if (!next) return;
-      const h = s.offsetHeight;
-      const c = Math.min(1, Math.max(0, (s.getBoundingClientRect().top + h - next.getBoundingClientRect().top) / h));
-      s.style.setProperty('--cover', c.toFixed(3));
-    });
-  };
-  const onScroll = () => {
-    if (!raf) raf = requestAnimationFrame(cover);
-  };
-  const ro = new ResizeObserver(stack);
-  if (stacked) {
-    steps.forEach((s) => ro.observe(s));
-    window.addEventListener('resize', stack);
-    if (!reduced) window.addEventListener('scroll', onScroll, { passive: true });
-  }
-
   const onPedida = () => {
     const k = pasos.findIndex((s) => s.id === pedida);
     pedida = null;
     if (k < 0) return;
-    steps[k].scrollIntoView({ block: 'center', behavior: reduced ? 'auto' : 'smooth' });
+    if (stacked) {
+      track.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+      goTo(k);
+    } else steps[k].scrollIntoView({ block: 'center', behavior: reduced ? 'auto' : 'smooth' });
   };
   document.addEventListener('proceso:etapa', onPedida);
   activate(0);
@@ -187,10 +207,11 @@ export function mount(el) {
   return () => {
     io.disconnect();
     io2.disconnect();
-    ro.disconnect();
-    cancelAnimationFrame(raf);
-    window.removeEventListener('resize', stack);
-    window.removeEventListener('scroll', onScroll);
+    clearTimeout(settle);
+    dotsBox.removeEventListener('click', onDot);
+    track.removeEventListener('keydown', onKey);
+    track.removeEventListener('touchstart', onTouch);
+    track.removeEventListener('scroll', onTrackScroll);
     document.removeEventListener('proceso:etapa', onPedida);
   };
 }

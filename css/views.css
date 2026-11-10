@@ -520,8 +520,8 @@
 .sstep-out { display: grid; gap: 6px; justify-self: start; min-width: min(100%, 320px); padding: 14px 18px; border-radius: var(--r-tile); background: var(--soft); }
 .sstep-out strong { font-size: 18px; font-weight: 700; letter-spacing: -.015em; }
 
-/* La imagen de cada etapa dentro del texto solo se usa en celular y tablet. */
-.sstep-visual { display: none; }
+/* La imagen de cada etapa dentro del texto y los puntos del carrusel solo se usan en celular y tablet. */
+.sstep-visual, .story-dots { display: none; }
 
 /* Ilustración fija: figura de partículas, número gigante y avance. */
 .story-visual {
@@ -751,11 +751,24 @@
   .story-grid { grid-template-columns: minmax(0, 1fr); gap: 0; }
   /* Sin imagen fija (taparía el texto al scrollear): cada etapa lleva la suya arriba y todo se lee entero. */
   .story-visual { display: none; }
-  /* Cards apiladas: cada etapa se pega arriba (top lo calcula js/views/proceso.js) y la siguiente la tapa. */
-  .story-steps { gap: 18px; }
+  /* Carrusel horizontal: cada card encaja en su lugar y, aunque se deslice fuerte, avanza de a una
+     (scroll-snap-stop). Asoma el borde de la siguiente para que se note que se desliza. */
+  .story-steps {
+    display: flex;
+    align-items: start;
+    gap: 10px;
+    margin-inline: calc(-1 * var(--pad-x));
+    padding: 2px var(--pad-x) 4px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--pad-x);
+    scrollbar-width: none;
+  }
+  .story-steps::-webkit-scrollbar { display: none; }
+  .story-steps:focus-visible { outline-offset: -2px; }
   .sstep {
-    position: sticky;
-    top: var(--stick, 10px);
+    flex: 0 0 calc(100% - 26px);
     align-content: start;
     min-height: 0;
     padding: 12px 12px 22px;
@@ -764,10 +777,14 @@
     background: var(--card);
     opacity: 1;
     translate: none;
-    transform-origin: 50% 0;
-    scale: calc(1 - var(--cover, 0) * .06);
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
     transition: none;
   }
+  .story-dots { display: flex; justify-content: center; gap: 2px; margin-top: 12px; }
+  .story-dots button { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; }
+  .story-dots span { width: 14px; height: 4px; background: var(--dot-off); transition: width var(--t) var(--ease), background-color var(--t) var(--ease); }
+  .story-dots [aria-current] span { width: 26px; background: var(--accent); }
   .sstep > :not(.sstep-visual) { margin-inline: 6px; }
   .sstep.is-on .sstep-list li { animation: none; }
   .sstep-visual { position: relative; display: block; height: clamp(200px, 54cqw, 300px); margin-bottom: 6px; padding: 0; overflow: hidden; border-radius: 14px; }
