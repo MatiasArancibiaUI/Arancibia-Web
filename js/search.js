@@ -1,5 +1,7 @@
 import { profile } from '../data/profile.js';
 import { projects } from '../data/projects.js';
+import { personal } from '../data/personal.js';
+import { verEtapa } from './views/proceso.js';
 import { esc, normalize, fmtRange, fmtYM } from './util.js';
 
 let input;
@@ -42,10 +44,10 @@ function buildIndex(routes) {
     idx.push({ group: 'Experiencia', label: `${e.cargo} · ${e.empresa}`, hint: fmtRange(e.inicio, e.fin), keys: [e.empresaCompleta, ...e.puntos].join(' '), run: go('#/experiencia') }),
   );
   profile.habilidades.forEach((h) =>
-    h.items.forEach((i) => idx.push({ group: 'Herramientas', label: i, hint: h.corta, keys: h.categoria, run: go('#/proceso') })),
+    h.items.forEach((i) => idx.push({ group: 'Herramientas', label: i, hint: h.corta, keys: h.categoria, run: go('#/') })),
   );
-  profile.mercado.instrumentos.forEach((x) =>
-    idx.push({ group: 'Mercado de capitales', label: x, hint: 'Productos financieros', keys: 'mercado capitales finanzas instrumentos byma', run: go('#/proceso') }),
+  personal.proceso.pasos.forEach((s, i) =>
+    idx.push({ group: 'Proceso', label: s.titulo, hint: `Etapa ${i + 1}`, keys: [s.texto, s.entrega, ...s.hago].join(' '), run: () => verEtapa(s.id) }),
   );
   profile.educacion.forEach((e) =>
     idx.push({ group: 'Estudios', label: e.titulo, hint: `${e.institucionCorta} · ${fmtRange(e.inicio, e.fin)}`, keys: e.institucion, run: go('#/sobre-mi') }),

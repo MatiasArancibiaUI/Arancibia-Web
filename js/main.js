@@ -17,7 +17,7 @@ const routes = [
   { path: '/', key: '1', label: 'Inicio', view: home, keywords: 'home dashboard tablero' },
   { path: '/experiencia', key: '2', label: 'Experiencia', view: experiencia, keywords: 'trabajo empleos cv byma uade dogma' },
   { path: '/proyectos', key: '3', label: 'Proyectos', view: proyectos, keywords: 'portfolio casos behance github' },
-  { path: '/proceso', key: '4', label: 'Proceso', view: proceso, keywords: 'proceso habilidades herramientas ia stack aprendiendo estudios mercado etf cedear fci' },
+  { path: '/proceso', key: '4', label: 'Proceso', view: proceso, keywords: 'proceso ia agentes skills documentacion validacion product owner deploy vercel github' },
   { path: '/sobre-mi', key: '5', label: 'Sobre mí', view: sobreMi, keywords: 'perfil cv idiomas contacto educacion' },
 ];
 
@@ -51,6 +51,8 @@ function render() {
     if (my !== seq) return;
     main.querySelectorAll('.view-host').forEach((v) => v.remove());
     main.append(el);
+    // La vista nueva arranca arriba: en celular scrollea la página, no el marco.
+    if (!firstRender) window.scrollTo(0, 0);
     const cleanups = [route.view.mount?.(el), mountDots(el)].filter(Boolean);
     current = { route, el, cleanup: () => cleanups.forEach((fn) => fn()) };
     rise(el);

@@ -41,7 +41,7 @@ Referencia visual: un tablero apaisado tipo dashboard (composición "Rythea") co
 | `#/` | Inicio (tablero tipo Rythea) | `1` | `js/views/home.js` |
 | `#/experiencia` | Experiencia | `2` | `js/views/experiencia.js` |
 | `#/proyectos` | Proyectos | `3` | `js/views/proyectos.js` |
-| `#/proceso` | Proceso: proceso de diseño a código (destacado), herramientas de IA, habilidades, mercado de capitales y "Aprendiendo ahora". `#/personal` redirige acá | `4` | `js/views/proceso.js` |
+| `#/proceso` | Proceso: recorrido de siete etapas de la idea al deploy (destacado) y el flujo con IA (de Figma a Vercel, con validación del P.O.). `#/personal` redirige acá | `4` | `js/views/proceso.js` |
 | `#/sobre-mi` | Sobre mí (ficha visual tipo CV) | `5` | `js/views/sobre-mi.js` |
 
 Menú inferior: barra horizontal centrada (`.dock`) con ícono y nombre en el mismo orden que los atajos: Inicio (casa), Experiencia (maletín), Proyectos (carpeta), Proceso (flujo), Sobre mí (credencial). En celular solo muestra el nombre de la vista activa.
@@ -53,7 +53,7 @@ Cada vista exporta `title`, `render()` (devuelve HTML) y opcionalmente `mount(el
 - `index.html`: barra superior, `<main id="main">` donde se monta la vista, dock, diálogo de contacto, metas, Open Graph y manifest.
 - `css/tokens.css` (tokens claro/oscuro) · `css/base.css` (reset, marco `.app`, transición de vistas, scroll fino) · `css/components.css` (botones, tarjetas, chips, menús, dock, diálogo) · `css/views.css` (una sección por vista + degradación por altura + modo apilado).
 - `js/main.js` (router y arranque) · `js/dock.js` · `js/search.js` (paleta de búsqueda en memoria) · `js/dots.js` (canvas de píxeles: `wave`, `pill`, `ring`, `scatter`, `cover`, con movimiento lento) · `js/motion.js` (entrada escalonada y conteo de números) · `js/brand.js` (logo) · `js/logos.js` (logos de herramientas) · `js/theme.js` · `js/ui.js` (copiar, menús, pestañas, contacto, botón de CV) · `js/icons.js` (íconos de línea estilo Lucide) · `js/util.js` (fechas, escape, normalizar).
-- **Datos (fuente de verdad, se editan acá y no en el HTML):** `data/profile.js` (CV: contacto, perfil, experiencia, educación, certificaciones, habilidades, idiomas, `cv`), `data/projects.js` (proyectos), `data/personal.js` (vista Proceso: pasos del proceso, "Aprendiendo ahora" y las tarjetas personales PENDIENTES). `profile.mercado` guarda los instrumentos financieros del CV (CEDEARs, ETFs, Fondos Comunes de Inversión).
+- **Datos (fuente de verdad, se editan acá y no en el HTML):** `data/profile.js` (CV: contacto, perfil, experiencia, educación, certificaciones, habilidades, idiomas, `cv`), `data/projects.js` (proyectos), `data/personal.js` (vista Proceso: las siete etapas con lo que hago, el entregable y las herramientas; el flujo con IA (`flujoIA`); "Aprendiendo ahora" y las tarjetas personales PENDIENTES). La búsqueda indexa cada etapa y abre Proceso en esa etapa (`verEtapa()`).
 - `assets/`: `matias-bn.webp` (recorte B/N con alfa, 800 × 728, 21 KB, sacado de la foto original de 800 × 800), `logo.svg` / `logo-dark.svg` (monograma), `icon.svg` (favicon), íconos PNG de la app, `og.jpg`. El CV va en `assets/cv-matias-arancibia.pdf`; al subirlo, poner esa ruta en `profile.cv` y los botones de descarga se activan solos.
 - `manifest.webmanifest`: instalable como app (sin service worker).
 - `scripts/dev.mjs`: servidor local.
@@ -63,12 +63,12 @@ Cada vista exporta `title`, `render()` (devuelve HTML) y opcionalmente `mount(el
 
 - El marco `.app` mide `min(100vw - 32px, 1440px)` × `min(100dvh - 32px, 920px)` y es contenedor de tamaño (`container: app / size`): las medidas usan `cqh`/`cqw` con `clamp()`.
 - Sin scroll de página desde 1024×700. Las vistas largas usan scroll interno dentro del marco. Debajo de 760 px y 680 px de alto del marco se ocultan detalles secundarios antes de que algo se corte.
-- Con el marco de menos de 960 px de ancho o 600 px de alto, todo pasa a una columna con scroll interno en `.main` (celular y tablet vertical).
-- El menú reserva su espacio con `--reserve` en `.view` (alto del menú + margen); nada queda debajo. En el modo apilado el menú deja de flotar y es la última fila del marco (media query en `css/components.css`), así siempre se ve en celular.
+- Con el marco de menos de 960 px de ancho o 600 px de alto (ventana de menos de 992 × 632), todo pasa a una columna y **scrollea la página entera**, no un contenedor interno: el scroll anidado en un marco de alto fijo falla en navegadores móviles. En ese modo `.app` es contenedor solo de ancho (`inline-size`) y los cortes son media queries (`css/base.css`, `css/components.css` y el bloque apilado de `css/views.css` usan los mismos valores). Las tarjetas de la home no llevan el `flex` con base 0 del escritorio, porque en columna se aplastan.
+- El menú reserva su espacio con `--reserve` en `.view` (alto del menú + margen); nada queda debajo. En el modo apilado el menú es la última fila del marco con `position: sticky` abajo, así siempre se ve en celular mientras se scrollea. Al cambiar de vista se vuelve arriba.
 - Pestaña Herramientas de la home: solo programas, como etiquetas con logo (sin conceptos, lenguajes ni metodologías; la lista de exclusiones es `NO_PROGRAMAS` en `js/views/home.js`).
 - Tarjeta de pestañas de la home: Experiencia muestra los roles anteriores (UADE y Dogma); el actual vive en la tarjeta grande "Trabajo actual", con el logo monocromo de BYMA (`companyLogo()` en `js/logos.js`). Herramientas y Educación ocultan los mosaicos de abajo para leerse completas, sin scroll.
 - La barra superior no lleva reloj ni chip de CABA. Las vistas con scroll no llevan desvanecido ni sombra bajo el menú.
-- La home entra completa, sin scroll: si no entra, primero se compacta y después se ocultan detalles secundarios por altura. Las demás vistas (Experiencia, Proyectos, Proceso, Sobre mí) scrollean dentro del marco (`.view-host.scrolls`, lo asigna `js/main.js`): el contenido toma su alto natural, con aire entre bloques, y no se esconde nada por altura. En el modo apilado (celular) scrollea `.main`.
+- La home entra completa, sin scroll: si no entra, primero se compacta y después se ocultan detalles secundarios por altura. Las demás vistas (Experiencia, Proyectos, Proceso, Sobre mí) scrollean dentro del marco (`.view-host.scrolls`, lo asigna `js/main.js`): el contenido toma su alto natural, con aire entre bloques, y no se esconde nada por altura. En el modo apilado (celular) scrollea la página.
 - Meses y años se calculan en `js/util.js` (`monthsBetween` cuenta el mes de inicio y el de fin). Nunca escribir duraciones a mano.
 - Las consultas de contenedor no aplican a `.app` mismo: para cambiar variables por tamaño se usa `.app > *`.
 
@@ -128,6 +128,7 @@ Discreto y siempre anulado con `prefers-reduced-motion`:
 - Franja de logos (`.logo-strip`) en desplazamiento lento; se pausa al pasar el mouse.
 - El cursor del logo y "Actual" parpadean en pasos.
 - Hover: tarjetas y botones suben 2px y toman el naranja.
+- Proceso (pedido explícito de más movimiento en esa vista): el segmento de la etapa activa se llena con el tiempo, la etapa activa tiene un píxel que parpadea, las tareas de la consola se escriben y se marcan; en el flujo con IA cada nodo se enciende en orden, un píxel pasa al siguiente y otro vuelve por el ciclo del P.O. Todo en pasos (`steps()`), solo con el bloque en pantalla (clase `.is-in` por `IntersectionObserver`) y anulado con movimiento reducido.
 
 ### Componentes existentes (reutilizarlos, no inventar variantes)
 
@@ -149,7 +150,7 @@ Nombres actuales en el código: `.card`, `.card.black`, `.chip`/`.chips`, `.labe
 
 - Escritorio: tablero apaisado de dos columnas, 43 / 57 (izquierda: perfil con foto, nombre, rol, ubicación e idiomas en una línea, pestañas y accesos (email y teléfono viven en Sobre mí y en el diálogo "Hablemos"); derecha: subtítulo numerado, titular, franja de stack, trabajo actual, aprendiendo y proyecto destacado).
 - Experiencia: debajo del título, la línea de tiempo en una tarjeta a todo el ancho (un píxel por mes desde 2023, etiquetas de cada rol arriba y años abajo; los meses se encienden en orden al entrar en pantalla). Debajo, BYMA a la izquierda con sus puntos en dos columnas; UADE y Dogma a la derecha, con todos sus puntos visibles.
-- Proceso: el proceso es una columna alta (tarjeta negra) con los cinco pasos en vertical y sus herramientas como etiquetas; al lado, IA y mercado de capitales arriba, "Aprendiendo ahora" en el medio y habilidades abajo.
+- Proceso: arriba, la tarjeta del recorrido a todo el ancho: siete etapas (Idear, Investigar, Diseñar, Validar con P.O., Documentar, Generar con IA, Desplegar) como botones con borde (pestañas con flechas, Inicio y Fin); la activa va en negro y las recorridas llevan tilde naranja. Debajo, una barra segmentada marca el avance y el tiempo, y el detalle de la etapa muestra número, título, texto, herramientas y una consola con las tareas y el entregable. Se recorre sola cada 6 s (botón Pausar/Reproducir; se frena al tocar una etapa, se pausa con el mouse encima y no arranca sola con movimiento reducido). Debajo, la tarjeta negra "Flujo con IA": Figma, componente.md, skills propias, Claude Code, GitHub y Vercel conectados, con la vuelta de validación e iteración con el P.O.; en celular va en vertical. Herramientas, formación, habilidades y mercado de capitales no van en esta vista.
 - Sobre mí: cuatro columnas. Datos de contacto y bio ocupan columnas completas; experiencia, idiomas, formación y certificaciones son tarjetas chicas.
 - Menos de 980px: una columna. Menos de 680px: todo apilado, la foto pasa debajo del nombre y desaparecen los botones de texto de la barra superior.
 - Margen lateral mínimo de 16px en cualquier ancho, respetando `env(safe-area-inset-*)`.

@@ -164,7 +164,7 @@ export function render() {
               <h2 class="label" id="h-learn">Aprendiendo ahora (${cursando})</h2>
               <p class="sub">Desde ${fmtYM(estudio.inicio)}</p>
             </div>
-            <a class="icon-btn sm" href="#/proceso" aria-label="Ver mi proceso y lo que estoy aprendiendo" title="Proceso">${icon('settings')}</a>
+            <a class="icon-btn sm" href="#/proceso" aria-label="Ver mi proceso de trabajo" title="Proceso">${icon('settings')}</a>
           </div>
           <div class="learn-art" aria-hidden="true"><canvas data-kind="scatter" data-seed="21"></canvas></div>
           <div class="learn-body">

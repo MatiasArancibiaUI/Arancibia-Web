@@ -83,6 +83,24 @@ a { color: inherit; text-decoration: none; }
   outline: none;
 }
 
+/* Celular y tablet (marco de menos de 960 × 600; los cortes suman los 32px de margen): scrollea la
+   página entera en vez de un contenedor interno. El scroll anidado dentro de un marco de alto fijo
+   falla en navegadores móviles (barra de direcciones, encadenado de scroll); el de la página no. */
+@media (max-width: 991.98px), (max-height: 631.98px) {
+  html, body { height: auto; }
+  body { display: block; overflow: visible; min-height: 100%; }
+  .app {
+    height: auto;
+    min-height: calc(100vh - 32px);
+    min-height: calc(100dvh - 32px);
+    margin-inline: auto;
+    overflow: visible;
+    overflow: clip;
+    /* Solo ancho: con "size" el marco necesitaría un alto fijo. */
+    container-type: inline-size;
+  }
+}
+
 .view-host {
   position: absolute;
   inset: 0;
