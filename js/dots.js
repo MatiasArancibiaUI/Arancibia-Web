@@ -91,9 +91,10 @@ function pill(ctx, w, h, rng, c, { progress, t }, canvas) {
 // partículas que titila alrededor, una línea de escaneo que lo recorre y lo ilumina, y cada tanto una
 // franja que se corre como un glitch. Unas pocas partículas son naranjas.
 function orb(ctx, w, h, rng, c, { t }) {
+  // Centro un poco más abajo y radio acotado por el alto libre, para que el globo no tape la cabecera.
   const cx = w / 2;
-  const cy = h / 2;
-  const R = Math.min(w * 0.44, h * 0.47);
+  const cy = h * 0.56;
+  const R = Math.min(w * 0.42, h * 0.38);
   const spin = t * 0.22;
   const tilt = 0.38;
   const scanY = t ? ((t * 55) % (h + 80)) - 40 : -999;
