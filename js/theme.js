@@ -1,10 +1,11 @@
 import { icon } from './icons.js';
 
-const KEY = 'theme';
+// Clave nueva al pasar el oscuro a estándar: una elección guardada con el claro por defecto ya no aplica.
+const KEY = 'theme-v2';
 const root = document.documentElement;
 
-// El claro es el estándar: el oscuro solo se activa con el botón.
-const effective = () => (root.dataset.theme === 'dark' ? 'dark' : 'light');
+// El oscuro es el estándar (index.html arranca con data-theme="dark"); el claro se elige con el botón.
+const effective = () => (root.dataset.theme === 'light' ? 'light' : 'dark');
 
 function syncButton(btn) {
   const dark = effective() === 'dark';

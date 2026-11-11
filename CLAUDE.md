@@ -167,7 +167,7 @@ Nombres actuales en el código: `.card`, `.card.black`, `.chip`/`.chips`, `.labe
 
 ## 5. Tema claro y oscuro
 
-- **El claro es el estándar.** No se sigue `prefers-color-scheme`: el sitio abre siempre en claro y el oscuro se activa solo con el botón (`data-theme="dark"` en `<html>`, guardado en `localStorage` dentro de `try/catch`).
+- **El oscuro es el estándar.** No se sigue `prefers-color-scheme`: `index.html` arranca con `data-theme="dark"` en `<html>` (sin destello claro al cargar) y el claro se elige con el botón, guardado en `localStorage` con la clave `theme-v2` dentro de `try/catch` (la clave cambió al pasar a oscuro por defecto, para que una elección vieja no pise el estándar). `theme-color` y el manifest usan el fondo oscuro `#161618`.
 - Cada token tiene su valor claro en `:root` y el oscuro en `:root[data-theme="dark"]`.
 - `body` siempre tiene fondo explícito con un token.
 - Cada cambio visual se revisa en los dos temas antes de darlo por terminado.
